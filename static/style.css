@@ -2,7 +2,7 @@
 
 @font-face {
     font-family: 'dm-regular';
-    src: url('../font/DMSans-Regular.ttf') format('truetype');
+    src: url('/static/fonts/DMSans-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -22,11 +22,13 @@ body {
 }
 
 #card-text {
-    width: 23.5%;
+    width: 28%;
     height: auto;
     min-width: 300px;
     background-color: #272729;
     padding: 1.35rem;
+    border: 1px solid rgb(2, 2, 2);
+    box-shadow: 3px 5px 7px rgba(0, 0, 0, 0.405);
     border-radius: 8px;
 }
 
@@ -34,8 +36,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 30px;
-    height: 30px;
+    width: 50px;
+    height: 50px;
     background-color: #47a7fa;
     border-radius: 50%;
     padding: 10px;
@@ -55,18 +57,18 @@ body {
 
 #card-text h1 {
     color: aliceblue;
-    font-size: 1.5em;
+    font-size: 2em;
     font-weight: 500;
 }
 
 #card-text p {
     color: #9dbdff;
-    font-size: 0.75em;
+    font-size: 1.1em;
 }
 
 #card-text label {
     color: aliceblue;
-    font-size: 0.7em;
+    font-size: 1em;
     font-family: 'dm-regular';
 }
 
@@ -74,7 +76,7 @@ body {
 #card-text input[type="email"],
 #card-text input[type="password"] {
     width: 100%;
-    height: 28px;
+    height: 35px;
     padding-left: 8px;
     border-radius: 8px;
     margin-bottom: 0.75rem;
@@ -83,8 +85,9 @@ body {
 #card-text input[type="submit"] {
     background-color: #47a7fa;
     color: #000000;
+    font-size: 1.2em;
     width: 100%;
-    height: 30px;
+    height: 40px;
     margin-bottom: 0.75rem;
     border-radius: 8px;
 }
