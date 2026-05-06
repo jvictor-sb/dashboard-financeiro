@@ -17,7 +17,7 @@ def cadastro():
     return render_template('cadastro.html')
 
 @app.route('/login', methods=['GET', 'POST'])
-def cadastro():
+def login():
     if request.method == 'POST':
         nome = request.form.get('nome')
         email = request.form.get('email')
