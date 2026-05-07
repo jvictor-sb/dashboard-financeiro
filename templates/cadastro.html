@@ -24,7 +24,7 @@
             <input type="password" id="confirmar_senha" name="confirmar_senha" required><br>
             <input type="submit" value="Criar Conta">
         </form>
-        <p id="return_login">Já tem uma conta? <a href="/login">Entrar</a></p>
+        <p id="return_login">Já tem uma conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
     </div>
 </body>
 </html>

@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from auth.routes import auth
 
 app = Flask(__name__)
 
@@ -6,23 +7,7 @@ app = Flask(__name__)
 def inicial():
     return 'Hello World!'
     
-
-@app.route('/cadastro', methods=['GET', 'POST'])
-def cadastro():
-    if request.method == 'POST':
-        nome = request.form['nome']
-        email = request.form['email']
-        senha = request.form['senha']
-        confirmar = request.form['confirmar_senha']
-    return render_template('cadastro.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        nome = request.form['nome']
-        email = request.form['email']
-        senha = request.form['senha']
-    return render_template('login.html')
+app.register_blueprint(auth)
 
 if __name__ == '__main__':
     app.run(debug=True)
