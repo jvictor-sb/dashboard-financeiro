@@ -96,7 +96,7 @@ body {
   filter: brightness(0.9);
 }
 
-#card-text #return_login {
+#card-text #return_login, #card-text #return_cadastro {
     color: aliceblue;
     text-decoration: none;
 }

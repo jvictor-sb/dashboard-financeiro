@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="card-text">
+        <div id="icon">
+            <img src="{{ url_for('static', filename='icons/login-icon.png') }}" alt="ícone">
+        </div>
+        <h1>Bem-vindo de volta</h1>
+        <p>Entre na sua conta para continuar</p>
+        <form action="/login" method="post">
+            <label for="email">E-mail</label><br>
+            <input type="email" name="email" id="email" required><br>
+
+            <label for="senha">Senha</label><br>
+            <input type="password" name="senha" id="senha" required><br>
+
+            <input type="submit" value="Entrar">
+        </form>
+        <p id="return_cadastro">Não possui uma conta? <a href="/cadastro">Criar Conta</a></p>
+    </div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -10,18 +10,18 @@ def inicial():
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
     if request.method == 'POST':
-        nome = request.form.get('nome')
-        email = request.form.get('email')
-        senha = request.form.get('senha')
-        confirmar = request.form.get('confirmar_senha')
+        nome = request.form['nome']
+        email = request.form['email']
+        senha = request.form['senha']
+        confirmar = request.form['confirmar_senha']
     return render_template('cadastro.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        nome = request.form.get('nome')
-        email = request.form.get('email')
-        senha = request.form.get('senha')
+        nome = request.form['nome']
+        email = request.form['email']
+        senha = request.form['senha']
     return render_template('login.html')
 
 if __name__ == '__main__':
