@@ -23,6 +23,9 @@
             <label for="confirmar_senha">Confirmar Senha</label><br>
             <input type="password" id="confirmar_senha" name="confirmar_senha" required><br>
             <input type="submit" value="Criar Conta">
+            {% if erro %}
+            <p style="color: red;">{{ erro }}</p>
+            {% endif %}
         </form>
         <p id="return_login">Já tem uma conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
     </div>
