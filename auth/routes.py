@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, session
 from auth.model import Usuario
 from auth.utils import criar_usuario, buscar_por_email, hash_senha
 
@@ -32,6 +32,12 @@ def login():
         usuario = buscar_por_email(email)
 
         if usuario and usuario['senha'] == hash_senha(senha):
-            return redirect(url_for('inicio.index'))
+            session['usuario'] = usuario['email']
+            return redirect(url_for('dashboard.index'))
 
     return render_template('login.html')
+
+@auth.route('/logout')
+def logout():
+    session.pop('usuario', None)
+    return redirect(url_for('auth.login'))
