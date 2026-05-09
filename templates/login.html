@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for ('static', filename='auth.css') }}">
 </head>
 <body>
     <div id="card-text">
@@ -12,7 +12,7 @@
             <img src="{{ url_for('static', filename='icons/login-icon.png') }}" alt="ícone">
         </div>
         <h1>Bem-vindo de volta</h1>
-        <p>Entre na sua conta para continuar</p>
+        <p class="paragrafo">Entre na sua conta para continuar</p>
         <form action="/login" method="post">
             <label for="email">E-mail</label><br>
             <input type="email" name="email" id="email" required><br>
@@ -21,6 +21,10 @@
             <input type="password" name="senha" id="senha" required><br>
 
             <input type="submit" value="Entrar">
+
+            {% if erro %}
+            <p class="erro">{{ erro }}</p>
+            {% endif %}
         </form>
         <p id="return_cadastro">Não possui uma conta? <a href="{{ url_for('auth.cadastro') }}">Criar Conta</a></p>
     </div>

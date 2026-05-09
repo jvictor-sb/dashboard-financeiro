@@ -30,6 +30,9 @@ def login():
         senha = request.form['senha']
 
         usuario = buscar_por_email(email)
+        
+        if not buscar_por_email(email):
+            return render_template('login.html', erro='Email ou Senha inválidos')
 
         if usuario and usuario['senha'] == hash_senha(senha):
             session['usuario'] = usuario['email']
