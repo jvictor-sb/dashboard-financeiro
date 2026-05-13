@@ -19,9 +19,9 @@
             <label for="email">E-mail</label><br>
             <input type="email" id="email" name="email" required><br>
             <label for="senha">Senha</label><br>
-            <input type="password" id="senha" name="senha" required><br>
+            <input type="password" id="senha" name="senha" minlength="8" required><br>
             <label for="confirmar_senha">Confirmar Senha</label><br>
-            <input type="password" id="confirmar_senha" name="confirmar_senha" required><br>
+            <input type="password" id="confirmar_senha" name="confirmar_senha" minlength="8" required><br>
             <input type="submit" value="Criar Conta"> 
             {% if erro %}
             <p class="erro">{{ erro }}</p>
