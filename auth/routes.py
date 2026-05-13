@@ -31,12 +31,14 @@ def login():
 
         usuario = buscar_por_email(email)
         
-        if not buscar_por_email(email):
-            return render_template('login.html', erro='Email ou Senha inválidos')
-
-        if usuario and usuario['senha'] == hash_senha(senha):
-            session['usuario'] = usuario['email']
-            return redirect(url_for('dashboard.index'))
+        if not usuario:
+            return render_template('login.html', erro='Email não cadastrado')
+        
+        if usuario['senha'] != hash_senha(senha):
+            return render_template('login.html', erro='Senha incorreta')
+        
+        session['usuario'] = usuario['email']
+        return redirect(url_for('dashboard.index'))
 
     return render_template('login.html')
 
