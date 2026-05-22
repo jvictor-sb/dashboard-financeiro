@@ -58,3 +58,7 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+@auth.route('/password_reset')
+def reset_password():
+    return render_template('change_pass.html')
