@@ -1,10 +1,9 @@
-from flask import Blueprint, render_template, session, redirect, url_for
+from flask import Blueprint, render_template
+from flask_login import login_required
 
 dashboard = Blueprint('dashboard', __name__)
 
 @dashboard.route('/')
+@login_required
 def index():
-    if 'usuario' not in session:
-        return redirect(url_for('auth.login'))
-        
     return render_template('index.html')

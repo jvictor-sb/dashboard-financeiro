@@ -21,6 +21,13 @@ body {
   background-color: #0d0e11;
 }
 
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 #card-text {
   width: 27%;
   height: auto;

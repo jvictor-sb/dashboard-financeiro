@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for
+from flask_login import login_user, logout_user, login_required, current_user
+from .extensions import lm
 from auth.model import Usuario
 from auth.utils import criar_usuario, buscar_por_email, hash_senha
 
@@ -23,26 +25,36 @@ def cadastro():
         return redirect(url_for('auth.login'))
     return render_template('cadastro.html')
 
+@lm.user_loader
+def load_user(email):
+    dados = buscar_por_email(email)
+    if dados:
+        return Usuario(dados['nome'], dados['email'], dados['senha'])
+    return None
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
 
-        usuario = buscar_por_email(email)
+        dados = buscar_por_email(email)
         
-        if not usuario:
+        if not dados:
             return render_template('login.html', erro='Email não cadastrado')
         
-        if usuario['senha'] != hash_senha(senha):
+        if dados['senha'] != hash_senha(senha):
             return render_template('login.html', erro='Senha incorreta')
         
-        session['usuario'] = usuario['email']
+        usuario = Usuario(dados['nome'], dados['email'], dados['senha'])
+        login_user(usuario)
+
         return redirect(url_for('dashboard.index'))
 
     return render_template('login.html')
 
 @auth.route('/logout')
+@login_required
 def logout():
-    session.pop('usuario', None)
+    logout_user()
     return redirect(url_for('auth.login'))
