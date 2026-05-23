@@ -1,12 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Tela de início</h1>
-    <a href="{{ url_for('auth.logout') }}">Sair</a>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Homepage</title>
+    <link rel="stylesheet" href="../static/style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Visão Geral</h1>
+        <p>Bem-vindo de volta! Aqui está seu resumo financeiro.</p>
+      </header>
+      <section class="saldo_total">
+        <h4>Saldo Total</h4>
+      </section>
+      <section class="receita_total">
+        <h4>Receita Total</h4>
+      </section>
+      <section class="despesas_totais">
+        <h4>Despesas Totais</h4>
+      </section>
+      <section class="transacao">
+        <h4>Transações</h4>
+      </section>
+      <section class="graph_transacao">
+        <h4>Receitas vs Despesas</h4>
+      </section>
+      <section class="graph_categ">
+        <h4>Detalhamento por Categoria</h4>
+      </section>
+      <section class="transacao_recentes">
+        <h4>Transações Recentes</h4>
+      </section>
+    </main>
+    <aside>
+      <nav>
+        <ul>
+          <li><p>Visão Geral</p></li>
+          <li><a href="">Despesas</a></li>
+          <li><a href="">Receitas</a></li>
+          <li><a href="{{ url_for('auth.logout') }}">Sair</a></li>
+        </ul>
+      </nav>
+    </aside>
+  </body>
 </html>

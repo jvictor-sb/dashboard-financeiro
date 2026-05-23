@@ -20,7 +20,10 @@
         </div>
         <h1>Alteração de senha</h1>
         <p class="paragrafo">Por favor, digite sua nova senha</p>
-        <form action="{{ url_for('auth.password_change', token=token, email=email) }}" method="POST">
+        <form action="{{ url_for('auth.password_change') }}" method="POST">
+          <input type="hidden" name="token" value="{{ token }}" />
+          <input type="hidden" name="email" value="{{ email }}" />
+
           <label for="senha">Nova senha</label><br />
           <input
             type="password"
@@ -29,8 +32,8 @@
             minlength="8"
             required
           /><br />
-          
-          <label for="senha">Confirme a senha</label><br />
+
+          <label for="confirmar_senha">Confirme a senha</label><br />
           <input
             type="password"
             name="confirmar_senha"
