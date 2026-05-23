@@ -19,6 +19,7 @@
                 <input type="email" name="email" id="email" required><br>
                 <label for="senha">Senha</label><br>
                 <input type="password" name="senha" id="senha" minlength="8" required><br>
+                <a class="recuperar_conta" href="{{ url_for('auth.password_reset') }}">Esqueceu sua senha?</a><br>
                 <input type="submit" value="Entrar">
                 {% if erro %}
                 <p class="erro">{{ erro }}</p>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Esqueci minha senha</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for ('static', filename='auth.css') }}"
+    />
+  </head>
+  <body>
+    <main>
+      <div id="card-text">
+        <div id="icon">
+          <img
+            src="{{ url_for('static', filename='icons/keyhole.svg') }}"
+            alt="ícone"
+          />
+        </div>
+        <h1>Alteração de senha</h1>
+        <p class="paragrafo">Por favor, digite sua nova senha</p>
+        <form action="{{ url_for('auth.password_change', token=token, email=email) }}" method="POST">
+          <label for="senha">Nova senha</label><br />
+          <input
+            type="password"
+            name="senha"
+            id="senha"
+            minlength="8"
+            required
+          /><br />
+          
+          <label for="senha">Confirme a senha</label><br />
+          <input
+            type="password"
+            name="confirmar_senha"
+            id="confirmar_senha"
+            minlength="8"
+            required
+          /><br />
+
+          <input type="submit" value="Confirmar Senha" />
+          {% if erro %}
+          <p class="erro">{{ erro }}</p>
+          {% endif %}
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

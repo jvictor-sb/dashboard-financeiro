@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esqueci minha senha</title>
+    <link rel="stylesheet" href="{{ url_for ('static', filename='auth.css') }}">
+</head>
+<body>
+    <main>
+        <div id="card-text">
+            <div id="icon">
+                <img src="{{ url_for('static', filename='icons/keyhole.svg') }}" alt="ícone">
+            </div>
+            <h1>Recuperação de senha</h1>
+            <p class="paragrafo">Por favor, digite seu endereço de email. Nós iremos mandar um mail para resetar sua senha</p>
+            <form action="/password_reset" method="post">
+                <label for="email">E-mail</label><br>
+                <input type="email" name="email" id="email" required><br>
+                <input type="submit" value="Enviar Email">
+
+                {% if erro %}
+                <p class="erro">{{ erro }}</p>
+                {% endif %}
+            </form>
+        </div>
+    </main>
+</body>
+</html>

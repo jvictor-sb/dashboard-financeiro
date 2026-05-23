@@ -29,7 +29,7 @@ main {
 }
 
 #card-text {
-  width: 27%;
+  width: 28%;
   height: auto;
   min-width: 320px;
   background-color: #272729;
@@ -71,7 +71,7 @@ p {
 }
 
 #card-text .paragrafo {
-    margin-bottom: 25px;
+  margin-bottom: 25px;
 }
 
 #card-text p {
@@ -96,6 +96,11 @@ p {
   margin-bottom: 0.75rem;
 }
 
+#card-text .recuperar_conta {
+  font-family: "dm-regular", sans-serif;
+  margin-bottom: 20px;
+}
+
 #card-text input[type="submit"] {
   background-color: #47a7fa;
   color: #000000;
@@ -111,7 +116,7 @@ p {
 }
 
 #card-text .erro {
-  color: #DC2626;
+  color: #dc2626;
   margin-bottom: 0.5rem;
 }
 

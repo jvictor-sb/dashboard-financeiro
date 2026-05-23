@@ -4,7 +4,7 @@ from auth.extensions import lm
 from dashboard.routes import dashboard
 
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta'
+app.secret_key = 'chave_secreta'
 
 lm.init_app(app)
 
