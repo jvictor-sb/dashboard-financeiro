@@ -39,12 +39,12 @@ def solicitar_recuperacao(email):
     return {'sucesso': True}
 
 def registrar_usuario(nome, email, senha, confirmar):
-    if senha != confirmar:
-        raise ValueError("As senhas não coincidem")
-
     if buscar_por_email(email):
         raise ValueError("Email já cadastrado")
 
+    if senha != confirmar:
+        raise ValueError("As senhas não coincidem")
+    
     usuario = Usuario(nome, email, senha)
     criar_usuario(usuario)
 
