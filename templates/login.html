@@ -1,33 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for ('static', filename='auth.css') }}">
-        <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icons/favicon.svg') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for ('static', filename='auth.css') }}"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ url_for('static', filename='icons/favicon.svg') }}"
+    />
+  </head>
+  <body>
     <main>
-        <div id="card-text">
-            <div id="icon">
-                <img src="{{ url_for('static', filename='icons/user.svg') }}" alt="ícone de login">
-            </div>
-            <h1>Bem-vindo de volta</h1>
-            <p class="paragrafo">Entre na sua conta para continuar</p>
-            <form action="/login" method="post">
-                <label for="email">E-mail</label><br>
-                <input type="email" name="email" id="email" required><br>
-                <label for="senha">Senha</label><br>
-                <input type="password" name="senha" id="senha" minlength="8" required><br>
-                <a class="recuperar_conta" href="{{ url_for('auth.password_reset') }}">Esqueceu sua senha?</a><br>
-                <input type="submit" value="Entrar">
-                {% if erro %}
-                <p class="erro">{{ erro }}</p>
-                {% endif %}
-            </form>
-            <p id="return_cadastro">Não possui uma conta? <a href="{{ url_for('auth.cadastro') }}">Criar Conta</a></p>
+      <div id="card-text">
+        <div id="icon">
+          <img
+            src="{{ url_for('static', filename='icons/user.svg') }}"
+            alt="ícone de login"
+          />
         </div>
+        <h1>Bem-vindo de volta</h1>
+        <p class="paragrafo">Entre na sua conta para continuar</p>
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <p class="{{ category }}">{{ message }}</p>
+        {% endfor %} {% endif %} {% endwith %}
+        <form action="/login" method="post">
+          <label for="email">E-mail</label><br />
+          <input type="email" name="email" id="email" required /><br />
+          <label for="senha">Senha</label><br />
+          <input
+            type="password"
+            name="senha"
+            id="senha"
+            minlength="8"
+            required
+          /><br />
+          <a class="recuperar_conta" href="{{ url_for('auth.password_reset') }}"
+            >Esqueceu sua senha?</a
+          ><br />
+          <input type="submit" value="Entrar" />
+          {% if erro %}
+          <p class="erro">{{ erro }}</p>
+          {% endif %}
+        </form>
+        <p id="return_cadastro">
+          Não possui uma conta?
+          <a href="{{ url_for('auth.cadastro') }}">Criar Conta</a>
+        </p>
+      </div>
     </main>
-</body>
+  </body>
 </html>

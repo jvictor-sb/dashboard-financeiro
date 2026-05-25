@@ -134,3 +134,7 @@ p {
 #card-text a:hover {
   text-decoration: underline;
 }
+
+#card-text p.success {
+    color: #2ecc71;
+}
