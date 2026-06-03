@@ -4,46 +4,161 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Homepage</title>
-    <link rel="stylesheet" href="../static/style.css" />
-        <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icons/favicon.svg') }}">
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ url_for('static', filename='icons/favicon.svg') }}"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0F1419",
+              "primary-selected": "#323234",
+              texto: "#E3F2FD",
+              borda: "#1E3A52 ",
+              fundo: "#0A0E12",
+              card: "#1A1F26",
+              azul: "#47A7FA",
+              verde: "#10B981",
+              vermelho: "#DC2626",
+            },
+          },
+        },
+      };
+    </script>
   </head>
-  <body>
-    <main>
-      <header>
-        <h1>Visão Geral</h1>
-        <p>Bem-vindo de volta! Aqui está seu resumo financeiro.</p>
-      </header>
-      <section class="saldo_total">
-        <h4>Saldo Total</h4>
-      </section>
-      <section class="receita_total">
-        <h4>Receita Total</h4>
-      </section>
-      <section class="despesas_totais">
-        <h4>Despesas Totais</h4>
-      </section>
-      <section class="transacao">
-        <h4>Transações</h4>
-      </section>
-      <section class="graph_transacao">
-        <h4>Receitas vs Despesas</h4>
-      </section>
-      <section class="graph_categ">
-        <h4>Detalhamento por Categoria</h4>
-      </section>
-      <section class="transacao_recentes">
-        <h4>Transações Recentes</h4>
-      </section>
-    </main>
-    <aside>
-      <nav>
-        <ul>
-          <li><p>Visão Geral</p></li>
-          <li><a href="">Despesas</a></li>
-          <li><a href="">Receitas</a></li>
-          <li><a href="{{ url_for('auth.logout') }}">Sair</a></li>
+  <body
+    class="block lg:grid lg:grid-cols-[14.75%_1fr] h-screen w-screen m-0 overflow-hidden"
+  >
+    <aside
+      id="sidebar"
+      class="hidden lg:flex lg:flex-col lg:justify-between bg-primary p-4 border-r border-borda text-white"
+    >
+      <nav id="menu-nav">
+        <div class="border-b border-borda -mx-4 px-4 pb-4">
+          <h2 class="text-2xl font-semibold">Painel Financeiro</h2>
+        </div>
+        <ul class="flex flex-col justify-between gap-1 mt-4 text-xl">
+          <li
+            class="flex items-center gap-2 p-2 rounded-md border-l-4 border-azul bg-primary-selected text-white font-medium select-none"
+          >
+            <i class="ph ph-chart-line-down text-azul text-xl"></i>
+            <p>Visão Geral</p>
+          </li>
+          <li
+            class="flex items-center gap-2 p-2 rounded-md border-l-4 border-transparent text-white hover:text-white hover:border-azul hover:bg-primary-selected transition-all cursor-pointer font-medium group"
+          >
+            <i class="ph ph-trend-down text-xl group-hover:text-azul"></i>
+            <a href="">Despesas</a>
+          </li>
+          <li
+            class="flex items-center gap-2 p-2 rounded-md border-l-4 border-transparent text-white hover:text-white hover:border-azul hover:bg-primary-selected transition-all cursor-pointer font-medium group"
+          >
+            <i class="ph ph-trend-up text-xl group-hover:text-azul"></i>
+            <a href="">Receitas</a>
+          </li>
         </ul>
       </nav>
+      <div class="border-t border-borda -mx-4 pt-4 px-4">
+        <div
+          class="w-full flex items-center justify-center gap-2 p-2 rounded-md border border-red-500/40 text-red-400 hover:bg-red-500/10 cursor-pointer transition-all"
+        >
+          <i class="ph ph-sign-out text-xl"></i>
+          <a href="{{ url_for('auth.logout') }}">Sair</a>
+        </div>
+      </div>
     </aside>
+
+    <main class="bg-fundo text-white h-screen flex flex-col overflow-y-auto">
+      <header class="p-6 pb-0">
+        <h1 class="text-3xl font-bold">Visão Geral</h1>
+        <p class="text-azul">
+          Bem-vindo de volta! Aqui está seu resumo financeiro.
+        </p>
+      </header>
+
+      <section class="w-full p-6 flex-1 flex flex-col gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div
+            class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2"
+            id="saldo_total"
+          >
+            <div class="flex items-center justify-between w-full">
+              <h4 class="text-azul">Saldo Total</h4>
+              <i class="ph ph-wallet text-azul text-xl"></i>
+            </div>
+            <p class="mt-auto text-2xl">{{ saldo_total }}</p>
+            <p class="text-azul text-xs">Saldo Atual</p>
+          </div>
+
+          <div
+            class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2"
+            id="receita_total"
+          >
+            <div class="flex items-center justify-between w-full">
+              <h4 class="text-azul">Receita Total</h4>
+              <i class="ph ph-trend-up text-verde text-xl"></i>
+            </div>
+            <p class="mt-auto text-2xl">{{ receita_total }}</p>
+            <p class="text-azul text-xs">Este Período</p>
+          </div>
+
+          <div
+            class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2"
+            id="despesas_totais"
+          >
+            <div class="flex items-center justify-between w-full">
+              <h4 class="text-azul">Despesas Totais</h4>
+              <i class="ph ph-trend-down text-vermelho text-xl"></i>
+            </div>
+            <p class="mt-auto text-2xl">{{ despesas_totais }}</p>
+            <p class="text-azul text-xs">Este Período</p>
+          </div>
+
+          <div
+            class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2"
+            id="transacao"
+          >
+            <div class="flex items-center justify-between w-full">
+              <h4 class="text-azul">Transações</h4>
+              <i class="ph ph-currency-dollar text-azul text-xl"></i>
+            </div>
+            <p class="mt-auto text-2xl">{{ qtd_transacao }}</p>
+            <p class="text-azul text-xs">Total de Transações</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div
+            class="bg-card rounded-md h-96 p-4 border border-borda"
+            id="graph_transacao"
+          >
+            <h4>Receitas vs Despesas</h4>
+          </div>
+          <div
+            class="bg-card rounded-md h-96 p-4 border border-borda"
+            id="graph_categ"
+          >
+            <h4>Detalhamento por Categoria</h4>
+          </div>
+        </div>
+
+        <div
+          class="bg-card rounded-md p-4 flex-1 min-h-[200px] border border-borda"
+          id="transacao_recentes"
+        >
+          <h4>Transações Recentes</h4>
+        </div>
+      </section>
+    </main>
   </body>
 </html>

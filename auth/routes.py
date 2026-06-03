@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required
 from .extensions import lm
 from auth.model import Usuario
-from auth.utils import buscar_por_email, verificar_token, atualizar_senha
+from auth.utils import buscar_por_email
 from auth import services  
 
 auth = Blueprint('auth', __name__)
