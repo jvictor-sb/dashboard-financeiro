@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Painel Financeiro{% endblock %}</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ url_for('static', filename='icons/favicon.svg') }}"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0F1419",
+              "primary-selected": "#323234",
+              texto: "#E3F2FD",
+              borda: "#1E3A52 ",
+              fundo: "#0A0E12",
+              card: "#1A1F26",
+              azul: "#47A7FA",
+              verde: "#10B981",
+              vermelho: "#DC2626",
+            },
+          },
+        },
+      };
+    </script>
+    {% block head %}{% endblock %}
+  </head>
+  <body
+    class="block lg:grid lg:grid-cols-[14.75%_1fr] h-screen w-screen m-0 overflow-hidden"
+  >
+    <aside
+      id="sidebar"
+      class="hidden lg:flex lg:flex-col lg:justify-between bg-primary p-4 border-r border-borda text-white"
+    >
+      <nav id="menu-nav">
+        <div class="border-b border-borda -mx-4 px-4 pb-4">
+          <h2 class="text-2xl font-semibold">Painel Financeiro</h2>
+        </div>
+        <ul class="flex flex-col justify-between gap-1 mt-4 text-xl">
+          <li
+            class="rounded-md border-l-4 {% if active_page == 'visao_geral' %}border-azul bg-primary-selected text-white{% else %}border-transparent text-white hover:text-white hover:border-azul hover:bg-primary-selected group{% endif %} transition-all font-medium"
+          >
+            <a
+              href="{{ url_for('dashboard.index') }}"
+              class="flex items-center gap-2 p-2 select-none w-full h-full"
+            >
+              <i
+                class="ph ph-chart-line-down text-xl {% if active_page == 'visao_geral' %}text-azul{% else %}group-hover:text-azul{% endif %}"
+              ></i>
+              <span>Visão Geral</span>
+            </a>
+          </li>
+
+          <li
+            class="rounded-md border-l-4 {% if active_page == 'despesas' %}border-azul bg-primary-selected text-white{% else %}border-transparent text-white hover:text-white hover:border-azul hover:bg-primary-selected group{% endif %} transition-all font-medium"
+          >
+            <a
+              href="#"
+              class="flex items-center gap-2 p-2 select-none w-full h-full"
+            >
+              <i
+                class="ph ph-trend-down text-xl {% if active_page == 'despesas' %}text-azul{% else %}group-hover:text-azul{% endif %}"
+              ></i>
+              <span>Despesas</span>
+            </a>
+          </li>
+
+          <li
+            class="rounded-md border-l-4 {% if active_page == 'receitas' %}border-azul bg-primary-selected text-white{% else %}border-transparent text-white hover:text-white hover:border-azul hover:bg-primary-selected group{% endif %} transition-all font-medium"
+          >
+            <a
+              href="#"
+              class="flex items-center gap-2 p-2 select-none w-full h-full"
+            >
+              <i
+                class="ph ph-trend-up text-xl {% if active_page == 'receitas' %}text-azul{% else %}group-hover:text-azul{% endif %}"
+              ></i>
+              <span>Receitas</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div class="border-t border-borda -mx-4 pt-4 px-4">
+        <a
+          href="{{ url_for('auth.logout') }}"
+          class="w-full h-full flex items-center justify-center gap-2 p-2 rounded-md border border-red-500/40 text-red-400 hover:bg-red-500/10 cursor-pointer transition-all block text-center"
+        >
+          <i class="ph ph-sign-out text-xl"></i>
+          <span>Sair</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="bg-fundo text-white h-screen flex flex-col overflow-y-auto">
+      {% block content %} {% endblock %}
+    </main>
+  </body>
+</html>
