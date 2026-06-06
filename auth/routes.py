@@ -1,18 +1,15 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required
-from .extensions import lm
+from .extensions import lm, db
 from auth.model import Usuario
-from auth.utils import buscar_por_email
 from auth import services  
 
 auth = Blueprint('auth', __name__)
 
 @lm.user_loader
 def load_user(email):
-    dados = buscar_por_email(email)
-    if dados:
-        return Usuario(dados['nome'], dados['email'], dados['senha'])
-    return None
+    usuario = db.session.query(Usuario).filter_by(email=email).first()
+    return usuario
 
 @auth.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():

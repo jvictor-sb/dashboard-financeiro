@@ -18,3 +18,4 @@ def index():
         active_page='visao_geral', 
         **dados_financeiros
     )
+    
