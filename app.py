@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 from auth.routes import auth
-from auth.extensions import lm, mail, db
+from extensions import lm, mail, db
 from dashboard.routes import dashboard
 from auth.errors import registrar_erros
 

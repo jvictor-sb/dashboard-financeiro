@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Despesas - Painel Financeiro</title>
+  </head>
+  <body>
+    <h1>Despesas</h1>
+    <p>Rastreie e gerencie suas despesas</p>
+    <div>
+      <h2>Adicionar Nova Despesa</h2>
+      <p>Insira os detalhes da sua despesa</p>
+      <form action="/despesas" method="POST">
+        <label for="valor">Valor (R$)</label> <br />
+        <input type="number" id="valor" name="valor" required /> <br />
+        <label for="categoria">Categoria</label> <br />
+        <select name="categoria" id="categoria">
+          <option value="" disabled selected>Selecione uma opção</option>
+          <option value="aluguel">Aluguel</option>
+          <option value="mercado">Mercado</option>
+          <option value="utilidades">Utilidades</option>
+          <option value="transporte">Transporte</option>
+          <option value="entretenimento">Entretenimento</option>
+          <option value="saude">Saúde</option>
+          <option value="compras">Compras</option>
+          <option value="outros">Outros</option>
+        </select>
+        <br />
+        <label for="descricao">Descrição</label> <br />
+        <input type="text" id="descricao" name="descricao" required /> <br />
+        <label for="data">Data</label> <br />
+        <input type="date" name="data" id="data" /> <br />
+        <label for="origem">Origem da Transação</label> <br />
+        <input type="text" name="origem" id="origem" /> <br />
+        <input type="reset" value="Cancelar" />
+        <input type="submit" value="Adicionar Despesas" />
+      </form>
+    </div>
+    <h2>Histórico de despesas</h2>
+    <table border="3">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Categoria</th>
+          <th>Origem</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for despesa in despesas %}
+        <tr>
+          <td>{{ despesa.data.strftime('%d/%m/%Y') }}</td>
+          <td>{{ despesa.descricao }}</td>
+          <td>{{ despesa.categoria }}</td>
+          <td>{{ despesa.origem }}</td>
+          <td>R$ {{ despesa.valor }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" style="text-align: center">
+            Nenhuma despesa cadastrada ainda.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <br />
+    <a href="{{ url_for('dashboard.index')}}">Voltar</a>
+  </body>
+</html>

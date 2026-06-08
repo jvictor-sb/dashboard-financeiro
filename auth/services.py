@@ -2,9 +2,7 @@ from auth.model import Usuario
 from auth.utils import gerar_token_recuperacao, verificar_token
 from flask import url_for
 from flask_mail import Message
-from auth.extensions import mail, db
-
-
+from extensions import mail, db
 
 def solicitar_recuperacao(email):
     dados = db.session.execute(db.select(Usuario).filter_by(email=email)).scalar_one_or_none()

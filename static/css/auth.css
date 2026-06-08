@@ -18,7 +18,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #0d0e11;
+  background-color: #0A0E12;
 }
 
 main {
@@ -32,9 +32,9 @@ main {
   width: 28%;
   height: auto;
   min-width: 320px;
-  background-color: #272729;
+  background-color: #1A1F26;
   padding: 1.35rem;
-  border: 1px solid rgb(2, 2, 2);
+  border: 1px solid #1E3A52;
   box-shadow: 3px 5px 7px rgba(0, 0, 0, 0.405);
   border-radius: 15px;
 }

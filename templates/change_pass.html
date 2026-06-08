@@ -18,7 +18,8 @@
             <form action="/password_reset" method="post">
                 <label for="email">E-mail</label><br>
                 <input type="email" name="email" id="email" required><br>
-                <input type="submit" value="Enviar Email">
+                <p>Botão Desativado</p>
+                <!-- <input type="submit" value="Enviar Email"> -->
 
                 {% if erro %}
                 <p class="erro">{{ erro }}</p>
