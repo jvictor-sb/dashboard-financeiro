@@ -11,14 +11,14 @@ def index():
     dados_financeiros = {
         "saldo_total": "R$ 3.450,00",
         "receita_total": "R$ 5.000,00",
-        "despesas_totais": "R$ 1.550,00",
         "qtd_transacao": 14
     }
+    despesas_totais = services.total_despesas()
     
     return render_template(
         'index.html', 
         active_page='visao_geral', 
-        **dados_financeiros
+        **dados_financeiros, despesas_totais=despesas_totais
     )
     
 @dashboard.route('/despesas', methods=['GET', 'POST'])
@@ -33,8 +33,15 @@ def despesas():
             
             data_objeto = datetime.strptime(data, '%Y-%m-%d').date()
             
-            services.adicionar_transacao(valor=valor,data=data_objeto, categoria=categoria, descricao=descricao,origem=origem)
+            services.adicionar_transacao(valor=valor,data=data_objeto, categoria=categoria, descricao=descricao,origem=origem, tipo='despesa')
             return redirect(url_for('dashboard.despesas'))
         
     listar_despesas = services.listar_transacoes()
-    return render_template('despesas.html', active_page='despesas', despesas=listar_despesas)
+    despesas_totais = services.total_despesas()
+    return render_template('despesas.html', active_page='despesas', despesas=listar_despesas, despesas_totais=despesas_totais, transacoes_despesas=0)
+
+@dashboard.route('/despesas/deletar/<int:id>', methods=['POST'])
+@login_required
+def deletar_despesa(id):
+    services.deletar_transacao(id)
+    return redirect(url_for('dashboard.despesas'))

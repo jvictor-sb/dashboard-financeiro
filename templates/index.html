@@ -1,18 +1,16 @@
-{% extends 'base.html' %}
-
-{% block title %}Visão Geral - Painel Financeiro{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}Visão Geral - Painel Financeiro{%
+endblock %} {% block content %}
 <header class="p-6 pb-0">
   <h1 class="text-3xl font-bold">Visão Geral</h1>
-  <p class="text-azul">
-    Bem-vindo de volta! Aqui está seu resumo financeiro.
-  </p>
+  <p class="text-azul">Bem-vindo de volta! Aqui está seu resumo financeiro.</p>
 </header>
 
 <section class="w-full p-6 flex-1 flex flex-col gap-5">
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-    <div class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2" id="saldo_total">
+    <div
+      class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2"
+      id="saldo_total"
+    >
       <div class="flex items-center justify-between w-full">
         <h4 class="text-azul">Saldo Total</h4>
         <i class="ph ph-wallet text-azul text-xl"></i>
@@ -21,7 +19,10 @@
       <p class="text-azul text-xs">Saldo Atual</p>
     </div>
 
-    <div class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2" id="receita_total">
+    <div
+      class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2"
+      id="receita_total"
+    >
       <div class="flex items-center justify-between w-full">
         <h4 class="text-azul">Receita Total</h4>
         <i class="ph ph-trend-up text-verde text-xl"></i>
@@ -30,16 +31,24 @@
       <p class="text-azul text-xs">Este Período</p>
     </div>
 
-    <div class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2" id="despesas_totais">
+    <div
+      class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2"
+      id="despesas_totais"
+    >
       <div class="flex items-center justify-between w-full">
         <h4 class="text-azul">Despesas Totais</h4>
         <i class="ph ph-trend-down text-vermelho text-xl"></i>
       </div>
-      <p class="mt-auto text-2xl">{{ despesas_totais }}</p>
+      <p class="mt-auto text-2xl text-vermelho">
+        R$ {{"%.2f"|format(despesas_totais)}}
+      </p>
       <p class="text-azul text-xs">Este Período</p>
     </div>
 
-    <div class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2" id="transacao">
+    <div
+      class="bg-card rounded-md h-36 p-4 border border-borda flex flex-col gap-2"
+      id="transacao"
+    >
       <div class="flex items-center justify-between w-full">
         <h4 class="text-azul">Transações</h4>
         <i class="ph ph-currency-dollar text-azul text-xl"></i>
@@ -50,15 +59,24 @@
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-    <div class="bg-card rounded-md h-96 p-4 border border-borda" id="graph_transacao">
+    <div
+      class="bg-card rounded-md h-96 p-4 border border-borda"
+      id="graph_transacao"
+    >
       <h4>Receitas vs Despesas</h4>
     </div>
-    <div class="bg-card rounded-md h-96 p-4 border border-borda" id="graph_categ">
+    <div
+      class="bg-card rounded-md h-96 p-4 border border-borda"
+      id="graph_categ"
+    >
       <h4>Detalhamento por Categoria</h4>
     </div>
   </div>
 
-  <div class="bg-card rounded-md p-4 flex-1 min-h-[200px] border border-borda" id="transacao_recentes">
+  <div
+    class="bg-card rounded-md p-4 flex-1 min-h-[200px] border border-borda"
+    id="transacao_recentes"
+  >
     <h4>Transações Recentes</h4>
   </div>
 </section>

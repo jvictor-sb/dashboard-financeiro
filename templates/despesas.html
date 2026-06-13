@@ -1,21 +1,45 @@
-<!doctype html>
-<html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Despesas - Painel Financeiro</title>
-  </head>
-  <body>
-    <h1>Despesas</h1>
-    <p>Rastreie e gerencie suas despesas</p>
-    <div>
-      <h2>Adicionar Nova Despesa</h2>
-      <p>Insira os detalhes da sua despesa</p>
+{% extends 'base.html' %} 
+
+{% block title %}Despesas - Painel Financeiro{% endblock %} 
+{% block content %}
+
+<header class="p-6 pb-0">
+  <h1 class="text-3xl font-bold">Despesas</h1>
+  <p class="text-azul">Rastreie e gerencie suas despesas</p>
+</header>
+
+<section class="w-full p-6 flex-1 flex flex-col gap-5">
+  <div class="grid gap-5">
+    <div class="bg-card rounded-2xl h-36 p-4 border border-borda flex flex-col gap-2" id="despesas_totais">
+      <div class="flex items-center justify-between w-full">
+        <h4 >Despesas Totais</h4>
+      </div>
+      <p class="mt-auto text-3xl text-vermelho">R$ {{"%.2f"|format(despesas_totais)}}</p>
+      <p class="text-azul text-xs">{{transacoes_despesas}} transações</p>
+    </div>
+    <div class="bg-card rounded-2xl h-[28.5rem] p-4 border border-borda flex flex-col gap-2" id="historico_despesa">
+      <h4>Visualização de Receitas</h4>
+    </div>
+  <button onclick="document.getElementById('modal_despesa').showModal()">
+  Adicionar Despesa
+</button>
+  <dialog class="rounded-2xl p-0 w-full max-w-md backdrop:bg-black/50" id="modal_despesa">
+    <div class="bg-card border border-borda p-6 flex flex-col gap-4">
+      <h2 class="text-xl font-bold">Adicionar Nova Despesa</h2>
+      <p class="text-azul text-sm">Insira os detalhes da sua despesa</p>
       <form action="/despesas" method="POST">
         <label for="valor">Valor (R$)</label> <br />
-        <input type="number" id="valor" name="valor" required /> <br />
+        <input
+          type="number"
+          id="valor"
+          name="valor"
+          min="0.00"
+          step="0.01"
+          required
+        />
+        <br />
         <label for="categoria">Categoria</label> <br />
-        <select name="categoria" id="categoria">
+        <select name="categoria" id="categoria" required>
           <option value="" disabled selected>Selecione uma opção</option>
           <option value="aluguel">Aluguel</option>
           <option value="mercado">Mercado</option>
@@ -30,43 +54,56 @@
         <label for="descricao">Descrição</label> <br />
         <input type="text" id="descricao" name="descricao" required /> <br />
         <label for="data">Data</label> <br />
-        <input type="date" name="data" id="data" /> <br />
+        <input type="date" name="data" id="data" required /> <br />
         <label for="origem">Origem da Transação</label> <br />
-        <input type="text" name="origem" id="origem" /> <br />
-        <input type="reset" value="Cancelar" />
+        <input type="text" name="origem" id="origem" required /> <br />
+        <button type="button" onclick="document.getElementById('modal_despesa').close()">
+  Cancelar
+</button>
         <input type="submit" value="Adicionar Despesas" />
       </form>
     </div>
-    <h2>Histórico de despesas</h2>
-    <table border="3">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Categoria</th>
-          <th>Origem</th>
-          <th>Valor</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for despesa in despesas %}
-        <tr>
-          <td>{{ despesa.data.strftime('%d/%m/%Y') }}</td>
-          <td>{{ despesa.descricao }}</td>
-          <td>{{ despesa.categoria }}</td>
-          <td>{{ despesa.origem }}</td>
-          <td>R$ {{ despesa.valor }}</td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="5" style="text-align: center">
-            Nenhuma despesa cadastrada ainda.
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <br />
-    <a href="{{ url_for('dashboard.index')}}">Voltar</a>
-  </body>
-</html>
+  </dialog>
+  <div class="bg-card rounded-2xl h-36 p-4 border border-borda flex flex-col gap-2" id="historico_despesa">
+  <h2 >Histórico de despesas</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Descrição</th>
+        <th>Categoria</th>
+        <th>Origem</th>
+        <th>Valor</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for despesa in despesas %}
+      <tr>
+        <td>{{ despesa.data.strftime('%d/%m/%Y') }}</td>
+        <td>{{ despesa.descricao }}</td>
+        <td>{{ despesa.categoria }}</td>
+        <td>{{ despesa.origem }}</td>
+        <td>R$ {{ despesa.valor }}</td>
+        <td>
+          <form
+            action="{{ url_for('dashboard.deletar_despesa', id=despesa.id) }}"
+            method="POST"
+          >
+            <button type="submit">Excluir</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" style="text-align: center">
+          Nenhuma despesa cadastrada ainda.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+{% endblock %}
