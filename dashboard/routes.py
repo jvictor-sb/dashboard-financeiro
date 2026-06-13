@@ -45,3 +45,8 @@ def despesas():
 def deletar_despesa(id):
     services.deletar_transacao(id)
     return redirect(url_for('dashboard.despesas'))
+
+@dashboard.route('/receitas', methods=['GET', 'POST'])
+@login_required
+def receitas():
+    return render_template('receitas.html', active_page='receitas')
