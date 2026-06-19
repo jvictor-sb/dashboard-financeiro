@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}Despesas - Painel Financeiro{%
+{% extends 'base.html' %} {% block title %}Receitas - Painel Financeiro{%
 endblock %} {% block content %}
 <style>
   input[type="date"]::-webkit-calendar-picker-indicator {
@@ -26,8 +26,8 @@ endblock %} {% block content %}
   class="p-6 pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
 >
   <div class="space-y-1">
-    <h1 class="text-3xl font-bold text-texto">Despesas</h1>
-    <p class="text-sm text-azul">Rastreie e gerencie suas despesas</p>
+    <h1 class="text-3xl font-bold text-texto">Receitas</h1>
+    <p class="text-sm text-azul">Rastreie suas receitas e fontes de renda</p>
   </div>
   <div class="flex items-center gap-3">
     <button
@@ -44,23 +44,23 @@ endblock %} {% block content %}
   <div class="grid gap-5">
     <div
       class="bg-card rounded-2xl h-36 p-4 border border-borda flex flex-col gap-2"
-      id="despesas_totais"
+      id="receitas_totais"
     >
       <div class="flex items-center justify-between w-full">
-        <h4 class="text-texto">Despesas Totais</h4>
+        <h4 class="text-texto">Receitas Totais</h4>
       </div>
-      <p class="mt-auto text-3xl text-vermelho">
-        R$ {{"%.2f"|format(despesas_totais)}}
+      <p class="mt-auto text-3xl text-azul">
+        R$ {{"%.2f"|format(receitas_totais)}}
       </p>
       <p class="text-azul text-xs">
-        {{ transacoes_despesas }} {% if transacoes_despesas == 1 %} transação {%
+        {{ transacoes_receitas }} {% if transacoes_receitas == 1 %} transação {%
         else %} transações {% endif %}
       </p>
     </div>
 
     <div
       class="bg-card rounded-2xl h-[28.5rem] p-4 border border-borda flex flex-col gap-2"
-      id="historico_despesa"
+      id="historico_receita"
     >
       <h4 class="text-texto">Visualização de Receitas</h4>
     </div>
@@ -68,7 +68,7 @@ endblock %} {% block content %}
     <div
       class="bg-card rounded-2xl p-4 border border-borda flex flex-col gap-4"
     >
-      <h2 class="text-texto font-bold">Histórico de Despesas</h2>
+      <h2 class="text-texto font-bold">Histórico de Receitas</h2>
 
       <table class="w-full text-base table-fixed">
         <thead>
@@ -83,7 +83,7 @@ endblock %} {% block content %}
               Categoria
             </th>
             <th class="text-left text-texto font-bold pb-3 pr-4 w-[13%]">
-              Origem
+              Fonte
             </th>
             <th class="text-right text-texto font-bold pb-3 pr-4 w-[15%]">
               Valor
@@ -94,30 +94,35 @@ endblock %} {% block content %}
           </tr>
         </thead>
         <tbody>
-          {% for despesa in despesas %}
+          {% for receita in receitas %}
           <tr
             class="border-b border-borda/40 hover:bg-azul/10 transition-colors"
           >
             <td class="py-5 pr-4 text-texto">
-              {{ despesa.data.strftime('%d/%m/%Y') }}
+              {{ receita.data.strftime('%d/%m/%Y') }}
             </td>
-            <td class="py-5 pr-4 text-texto">{{ despesa.descricao }}</td>
+
+            <td class="py-5 pr-4 text-texto">{{ receita.descricao }}</td>
+
             <td class="py-5 pr-4">
               <span
-                class="bg-form border border-borda text-textotext-xs px-3 py-1 rounded-md"
+                class="bg-form border border-borda text-texto text-xs px-3 py-1 rounded-md"
               >
-                {{ despesa.categoria | capitalize }}
+                {{ receita.categoria | capitalize }}
               </span>
             </td>
+
             <td class="py-5 pr-4 text-texto text-sm">
-              {{ despesa.origem if despesa.origem else '-' }}
+              {{ receita.origem if receita.origem else '-' }}
             </td>
-            <td class="py-5 pr-4 text-right text-vermelho font-medium text-sm">
-              R$ {{ "%.2f"|format(despesa.valor) }}
+
+            <td class="py-5 pr-4 text-right text-green-500 font-medium text-sm">
+              R$ {{ "%.2f"|format(receita.valor) }}
             </td>
+
             <td class="py-5 pr-6 text-right">
               <form
-                action="{{ url_for('dashboard.deletar_despesa', id=despesa.id) }}"
+                action="{{ url_for('dashboard.deletar_receitas', id=receita.id) }}"
                 method="POST"
               >
                 <button
@@ -132,7 +137,7 @@ endblock %} {% block content %}
           {% else %}
           <tr>
             <td colspan="6" class="py-8 text-center text-texto/40 text-sm">
-              Nenhuma despesa cadastrada ainda.
+              Nenhuma receita cadastrada ainda.
             </td>
           </tr>
           {% endfor %}
@@ -144,17 +149,17 @@ endblock %} {% block content %}
 
 <dialog
   class="rounded-2xl p-0 w-full max-w-2xl opacity-0 scale-95 transition-all duration-200 backdrop:bg-black/0 backdrop:transition-all backdrop:duration-200"
-  id="modal_despesa"
+  id="modal_receita"
 >
   <div class="bg-fundo border border-borda p-6 pb-0 flex flex-col gap-4">
     <div>
-      <h2 class="text-xl text-texto font-bold">Adicionar Nova Despesa</h2>
-      <p class="text-azul text-sm">Insira os detalhes da sua despesa</p>
+      <h2 class="text-xl text-texto font-bold">Adicionar Nova Receita</h2>
+      <p class="text-azul text-sm">Insira os detalhes da sua receita</p>
     </div>
 
     <form
       class="text-texto flex flex-col gap-3"
-      action="/despesas"
+      action="/receitas"
       method="POST"
     >
       <div class="flex flex-col gap-1">
@@ -180,16 +185,12 @@ endblock %} {% block content %}
           class="bg-form rounded-2xl h-11 px-3 w-full border border-borda focus:border-azul focus:outline-none focus:ring-2 focus:ring-azul/30 text-texto/40"
         >
           <option value="" disabled selected hidden>Selecione uma opção</option>
-          <option value="aluguel" class="text-texto">Aluguel</option>
-          <option value="mercado" class="text-texto">Mercado</option>
-          <option value="utilidades" class="text-texto">Utilidades</option>
-          <option value="transporte" class="text-texto">Transporte</option>
-          <option value="entretenimento" class="text-texto">
-            Entretenimento
-          </option>
-          <option value="saude" class="text-texto">Saúde</option>
-          <option value="compras" class="text-texto">Compras</option>
-          <option value="outros" class="text-texto">Outros</option>
+          <option value="salario" class="text-texto">Salário</option>
+          <option value="mercado" class="text-texto">Freelance</option>
+          <option value="utilidades" class="text-texto">Investimento</option>
+          <option value="transporte" class="text-texto">Negócio</option>
+          <option value="entretenimento" class="text-texto">Presente</option>
+          <option value="saude" class="text-texto">Outros</option>
         </select>
       </div>
 
@@ -200,7 +201,7 @@ endblock %} {% block content %}
           id="descricao"
           name="descricao"
           required
-          placeholder="Ex: Conta de luz"
+          placeholder="Digite uma Descrição"
           class="bg-form rounded-2xl h-11 px-3 w-full border border-borda focus:border-azul focus:outline-none focus:ring-2 focus:ring-azul/30 placeholder:text-texto/40"
         />
       </div>
@@ -217,13 +218,13 @@ endblock %} {% block content %}
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="origem">Origem da Transação</label>
+        <label for="origem">Fonte</label>
         <input
           type="text"
           name="origem"
           id="origem"
           required
-          placeholder="Ex: Cartão de crédito"
+          placeholder="Ex: Empresa, Nome do Cliente"
           class="bg-form rounded-2xl h-11 px-3 w-full border border-borda focus:border-azul focus:outline-none focus:ring-2 focus:ring-azul/30 placeholder:text-texto/40"
         />
       </div>
@@ -231,14 +232,14 @@ endblock %} {% block content %}
       <div class="flex justify-end gap-3 py-4">
         <button
           type="button"
-          id="btn_cancelar_despesa"
+          id="btn_cancelar_receita"
           class="h-9 px-4 text-sm rounded-xl bg-form border border-borda text-texto font-medium hover:brightness-110 transition"
         >
           Cancelar
         </button>
         <input
           type="submit"
-          value="Adicionar Despesa"
+          value="Adicionar Receita"
           class="h-9 px-4 text-sm rounded-xl bg-azul text-fundo font-medium cursor-pointer hover:brightness-110 transition"
         />
       </div>
@@ -247,7 +248,7 @@ endblock %} {% block content %}
 </dialog>
 
 <script>
-  const modal = document.getElementById("modal_despesa");
+  const modal = document.getElementById("modal_receita");
 
   function abrirModal() {
     modal.showModal();
@@ -271,7 +272,7 @@ endblock %} {% block content %}
   }
 
   document
-    .getElementById("btn_cancelar_despesa")
+    .getElementById("btn_cancelar_receita")
     .addEventListener("click", fecharModal);
 </script>
 

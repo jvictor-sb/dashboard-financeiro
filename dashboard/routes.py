@@ -8,17 +8,20 @@ dashboard = Blueprint('dashboard', __name__)
 @dashboard.route('/')
 @login_required
 def index():
-    dados_financeiros = {
-        "saldo_total": "R$ 3.450,00",
-        "receita_total": "R$ 5.000,00",
-        "qtd_transacao": 14
-    }
+    
+    
     despesas_totais = services.total_despesas()
+    receitas_totais = services.total_receitas()
+    saldo = receitas_totais - despesas_totais
+    qtd_transacao = services.total_transacao()
     
     return render_template(
         'index.html', 
         active_page='visao_geral', 
-        **dados_financeiros, despesas_totais=despesas_totais
+        despesas_totais=despesas_totais,
+        receitas_totais=receitas_totais,
+        saldo_total=saldo,
+        qtd_transacao=qtd_transacao
     )
     
 @dashboard.route('/despesas', methods=['GET', 'POST'])
@@ -36,9 +39,11 @@ def despesas():
             services.adicionar_transacao(valor=valor,data=data_objeto, categoria=categoria, descricao=descricao,origem=origem, tipo='despesa')
             return redirect(url_for('dashboard.despesas'))
         
-    listar_despesas = services.listar_transacoes()
+    listar_despesas = services.listar_transacoes_por_tipo(tipo='despesa')
     despesas_totais = services.total_despesas()
-    return render_template('despesas.html', active_page='despesas', despesas=listar_despesas, despesas_totais=despesas_totais, transacoes_despesas=0)
+    transacoes_despesas = len(listar_despesas)
+    
+    return render_template('despesas.html', active_page='despesas', despesas=listar_despesas, despesas_totais=despesas_totais, transacoes_despesas=transacoes_despesas)
 
 @dashboard.route('/despesas/deletar/<int:id>', methods=['POST'])
 @login_required
@@ -49,4 +54,26 @@ def deletar_despesa(id):
 @dashboard.route('/receitas', methods=['GET', 'POST'])
 @login_required
 def receitas():
-    return render_template('receitas.html', active_page='receitas')
+    if request.method == 'POST':
+        valor = float(request.form['valor'])
+        data = request.form['data']
+        categoria = request.form['categoria']
+        descricao = request.form['descricao']
+        origem = request.form['origem'] 
+        
+        data_objeto = datetime.strptime(data, '%Y-%m-%d').date()
+        
+        services.adicionar_transacao(valor=valor,data=data_objeto, categoria=categoria, descricao=descricao,origem=origem, tipo='receita')
+        return redirect(url_for('dashboard.receitas'))
+
+    listar_receitas = services.listar_transacoes_por_tipo(tipo='receita')
+    receitas_totais = services.total_receitas() 
+    transacoes_receitas = len(listar_receitas)
+    
+    return render_template('receitas.html', active_page='receitas', receitas=listar_receitas, receitas_totais=receitas_totais, transacoes_receitas=transacoes_receitas)
+
+@dashboard.route('/receitas/deletar/<int:id>', methods=['POST'])
+@login_required
+def deletar_receitas(id):
+    services.deletar_transacao(id)
+    return redirect(url_for('dashboard.receitas'))

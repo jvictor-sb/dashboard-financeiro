@@ -15,7 +15,7 @@ endblock %} {% block content %}
         <h4 class="text-azul">Saldo Total</h4>
         <i class="ph ph-wallet text-azul text-xl"></i>
       </div>
-      <p class="mt-auto text-2xl">{{ saldo_total }}</p>
+      <p class="mt-auto text-2xl">R$ {{"%.2f"|format(saldo_total)}}</p>
       <p class="text-azul text-xs">Saldo Atual</p>
     </div>
 
@@ -27,7 +27,7 @@ endblock %} {% block content %}
         <h4 class="text-azul">Receita Total</h4>
         <i class="ph ph-trend-up text-verde text-xl"></i>
       </div>
-      <p class="mt-auto text-2xl">{{ receita_total }}</p>
+      <p class="mt-auto text-2xl text-azul">R$ {{ "%.2f"|format(receitas_totais) }}</p>
       <p class="text-azul text-xs">Este Período</p>
     </div>
 
