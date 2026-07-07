@@ -6,8 +6,11 @@ class Usuario(UserMixin, db.Model):
     __tablename__ = 'users'
 
     nome = db.Column(db.String(120), nullable=False)
-    email =db.Column(db.String(120), primary_key=True)
+    email = db.Column(db.String(120), primary_key=True)
     senha_hash = db.Column(db.String(), nullable=False)
+    
+    
+    transacoes = db.relationship('Transacao', backref='autor', lazy=True)
     
     def get_id(self):
         return str(self.email)

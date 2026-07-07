@@ -27,7 +27,9 @@ endblock %} {% block content %}
         <h4 class="text-azul">Receita Total</h4>
         <i class="ph ph-trend-up text-verde text-xl"></i>
       </div>
-      <p class="mt-auto text-2xl text-azul">R$ {{ "%.2f"|format(receitas_totais) }}</p>
+      <p class="mt-auto text-2xl text-azul">
+        R$ {{ "%.2f"|format(receitas_totais) }}
+      </p>
       <p class="text-azul text-xs">Este Período</p>
     </div>
 
@@ -77,7 +79,7 @@ endblock %} {% block content %}
     class="bg-card rounded-md p-4 flex-1 min-h-[200px] border border-borda"
     id="transacao_recentes"
   >
-    <h4>Transações Recentes</h4>
+    </div>
   </div>
 </section>
 {% endblock %}
