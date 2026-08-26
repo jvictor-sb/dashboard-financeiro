@@ -13,7 +13,11 @@ def index():
     saldo = float(receitas_totais) - float(despesas_totais)
     qtd_transacao = services.total_transacao(user_email=current_user.email)
     
-    listar_transacao = services.listar_transacoes(user_email=current_user.email)
+    listar_transacao = services.listar_transacoes_recentes(user_email=current_user.email)
+    
+    grafico_receitas_despesas = services.receitas_despesas_ultimos_6_meses(user_email=current_user.email)
+    grafico_categoria_despesas = services.total_por_categoria(user_email=current_user.email, tipo='despesa')
+    grafico_categoria_receitas = services.total_por_categoria(user_email=current_user.email, tipo='receita')
     
     return render_template(
         'index.html', 
@@ -22,7 +26,10 @@ def index():
         receitas_totais=receitas_totais,
         saldo_total=saldo,
         qtd_transacao=qtd_transacao,
-        transacoes_recentes = listar_transacao
+        transacoes_recentes = listar_transacao,
+        grafico_receitas_despesas=grafico_receitas_despesas,
+        grafico_categoria_despesas=grafico_categoria_despesas,
+        grafico_categoria_receitas=grafico_categoria_receitas
     )
     
 @dashboard.route('/despesas', methods=['GET', 'POST'])
@@ -33,7 +40,6 @@ def despesas():
         data = request.form['data']
         categoria = request.form['categoria']
         descricao = request.form['descricao']
-        origem = request.form['origem'] 
         
         data_objeto = datetime.strptime(data, '%Y-%m-%d').date()
         
@@ -43,7 +49,6 @@ def despesas():
             data=data_objeto, 
             categoria=categoria, 
             descricao=descricao,
-            origem=origem, 
             tipo='despesa'
         )
         return redirect(url_for('dashboard.despesas'))
@@ -68,7 +73,6 @@ def receitas():
         data = request.form['data']
         categoria = request.form['categoria']
         descricao = request.form['descricao']
-        origem = request.form['origem'] 
         
         data_objeto = datetime.strptime(data, '%Y-%m-%d').date()
         
@@ -78,7 +82,6 @@ def receitas():
             data=data_objeto, 
             categoria=categoria, 
             descricao=descricao,
-            origem=origem, 
             tipo='receita'
         )
         return redirect(url_for('dashboard.receitas'))

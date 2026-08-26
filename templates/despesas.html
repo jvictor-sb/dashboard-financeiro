@@ -62,7 +62,7 @@ endblock %} {% block content %}
       class="bg-card rounded-2xl h-[28.5rem] p-4 border border-borda flex flex-col gap-2"
       id="historico_despesa"
     >
-      <h4 class="text-texto">Visualização de Receitas</h4>
+      <h4 class="text-texto">Visualização de Despesas</h4>
     </div>
 
     <div
@@ -73,22 +73,19 @@ endblock %} {% block content %}
       <table class="w-full text-base table-fixed">
         <thead>
           <tr class="border-b border-borda">
-            <th class="text-left text-texto font-bold pb-3 pr-4 w-[12%]">
+            <th class="text-left text-texto font-bold pb-3 pr-4 w-[14%]">
               Data
             </th>
-            <th class="text-left text-texto font-bold pb-3 pr-4 w-[28%]">
+            <th class="text-left text-texto font-bold pb-3 pr-4 w-[38%]">
               Descrição
             </th>
-            <th class="text-left text-texto font-bold pb-3 pr-4 w-[15%]">
+            <th class="text-left text-texto font-bold pb-3 pr-4 w-[20%]">
               Categoria
             </th>
-            <th class="text-left text-texto font-bold pb-3 pr-4 w-[13%]">
-              Origem
-            </th>
-            <th class="text-right text-texto font-bold pb-3 pr-4 w-[15%]">
+            <th class="text-right text-texto font-bold pb-3 pr-4 w-[18%]">
               Valor
             </th>
-            <th class="text-right text-texto font-bold pb-3 pr-6 w-[5%]">
+            <th class="text-right text-texto font-bold pb-3 pr-6 w-[10%]">
               Ações
             </th>
           </tr>
@@ -109,9 +106,6 @@ endblock %} {% block content %}
                 {{ despesa.categoria | capitalize }}
               </span>
             </td>
-            <td class="py-5 pr-4 text-texto text-sm">
-              {{ despesa.origem if despesa.origem else '-' }}
-            </td>
             <td class="py-5 pr-4 text-right text-vermelho font-medium text-sm">
               R$ {{ "%.2f"|format(despesa.valor) }}
             </td>
@@ -131,7 +125,7 @@ endblock %} {% block content %}
           </tr>
           {% else %}
           <tr>
-            <td colspan="6" class="py-8 text-center text-texto/40 text-sm">
+            <td colspan="5" class="py-8 text-center text-texto/40 text-sm">
               Nenhuma despesa cadastrada ainda.
             </td>
           </tr>
@@ -212,18 +206,6 @@ endblock %} {% block content %}
           name="data"
           id="data"
           required
-          class="bg-form rounded-2xl h-11 px-3 w-full border border-borda focus:border-azul focus:outline-none focus:ring-2 focus:ring-azul/30 placeholder:text-texto/40"
-        />
-      </div>
-
-      <div class="flex flex-col gap-1">
-        <label for="origem">Origem da Transação</label>
-        <input
-          type="text"
-          name="origem"
-          id="origem"
-          required
-          placeholder="Ex: Cartão de crédito"
           class="bg-form rounded-2xl h-11 px-3 w-full border border-borda focus:border-azul focus:outline-none focus:ring-2 focus:ring-azul/30 placeholder:text-texto/40"
         />
       </div>

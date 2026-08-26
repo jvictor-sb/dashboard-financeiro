@@ -7,5 +7,4 @@ class Transacao(db.Model):
         data = db.Column(db.DateTime)
         categoria = db.Column(db.String(40))
         descricao = db.Column(db.String(80))
-        origem = db.Column(db.String(80))
         tipo = db.Column(db.String(20))

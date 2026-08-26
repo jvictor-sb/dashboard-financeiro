@@ -62,16 +62,40 @@ endblock %} {% block content %}
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
     <div
-      class="bg-card rounded-md h-96 p-4 border border-borda"
+      class="bg-card rounded-md h-96 p-4 border border-borda flex flex-col"
       id="graph_transacao"
     >
       <h4>Receitas vs Despesas</h4>
+      <div class="flex-1 relative">
+        <canvas id="chart_receitas_despesas"></canvas>
+      </div>
     </div>
     <div
-      class="bg-card rounded-md h-96 p-4 border border-borda"
+      class="bg-card rounded-md h-96 p-4 border border-borda flex flex-col"
       id="graph_categ"
     >
-      <h4>Detalhamento por Categoria</h4>
+      <div class="flex items-center justify-between">
+        <h4>Detalhamento por Categoria</h4>
+        <div class="flex items-center gap-1 bg-form border border-borda rounded-lg p-1 text-xs">
+          <button
+            type="button"
+            id="btn_categ_despesas"
+            class="px-3 py-1 rounded-md transition-colors bg-vermelho text-fundo"
+          >
+            Despesas
+          </button>
+          <button
+            type="button"
+            id="btn_categ_receitas"
+            class="px-3 py-1 rounded-md transition-colors text-texto"
+          >
+            Receitas
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 relative">
+        <canvas id="chart_categoria"></canvas>
+      </div>
     </div>
   </div>
 
@@ -79,7 +103,134 @@ endblock %} {% block content %}
     class="bg-card rounded-md p-4 flex-1 min-h-[200px] border border-borda"
     id="transacao_recentes"
   >
+    <h4 class="mb-4">Transações Recentes</h4>
+    <div class="flex flex-col gap-3">
+      {% for t in transacoes_recentes %}
+      <div class="flex items-center justify-between border-b border-borda pb-3 last:border-0 last:pb-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center {{ 'bg-verde/10' if t.tipo == 'receita' else 'bg-vermelho/10' }}">
+            <i class="ph {{ 'ph-trend-up text-verde' if t.tipo == 'receita' else 'ph-trend-down text-vermelho' }}"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium">{{ t.descricao }}</p>
+            <p class="text-azul text-xs">{{ t.categoria }} · {{ t.data.strftime('%d/%m/%Y') }}</p>
+          </div>
+        </div>
+        <p class="text-sm {{ 'text-verde' if t.tipo == 'receita' else 'text-vermelho' }}">
+          {{ '+' if t.tipo == 'receita' else '-' }} R$ {{ "%.2f"|format(t.valor) }}
+        </p>
+      </div>
+      {% else %}
+      <p class="text-azul text-sm">Nenhuma transação encontrada.</p>
+      {% endfor %}
     </div>
   </div>
+  </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const corVerde = '#10B981';
+  const corVermelho = '#DC2626';
+  const corAzul = '#47A7FA';
+
+  function hexParaRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  const dadosReceitasDespesas = {{ grafico_receitas_despesas | tojson }};
+
+  new Chart(document.getElementById('chart_receitas_despesas'), {
+    type: 'line',
+    data: {
+      labels: dadosReceitasDespesas.labels,
+      datasets: [
+        {
+          label: 'Receitas',
+          data: dadosReceitasDespesas.receitas,
+          borderColor: corVerde,
+          backgroundColor: hexParaRgba(corVerde, 0.15),
+          fill: true,
+          tension: 0.3,
+        },
+        {
+          label: 'Despesas',
+          data: dadosReceitasDespesas.despesas,
+          borderColor: corVermelho,
+          backgroundColor: hexParaRgba(corVermelho, 0.15),
+          fill: true,
+          tension: 0.3,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: corAzul } },
+      },
+      scales: {
+        x: { ticks: { color: corAzul }, grid: { display: false } },
+        y: { ticks: { color: corAzul }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+      },
+    },
+  });
+
+  const dadosCategoriaDespesas = {{ grafico_categoria_despesas | tojson }};
+  const dadosCategoriaReceitas = {{ grafico_categoria_receitas | tojson }};
+
+  const btnDespesas = document.getElementById('btn_categ_despesas');
+  const btnReceitas = document.getElementById('btn_categ_receitas');
+
+  const chartCategoria = new Chart(document.getElementById('chart_categoria'), {
+    type: 'bar',
+    data: {
+      labels: dadosCategoriaDespesas.labels,
+      datasets: [
+        {
+          label: 'Despesas',
+          data: dadosCategoriaDespesas.valores,
+          backgroundColor: corVermelho,
+          borderRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        x: { ticks: { color: corAzul }, grid: { display: false } },
+        y: { ticks: { color: corAzul }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+      },
+    },
+  });
+
+  function ativarToggleCategoria(tipo) {
+    const dados = tipo === 'despesa' ? dadosCategoriaDespesas : dadosCategoriaReceitas;
+    const cor = tipo === 'despesa' ? corVermelho : corVerde;
+
+    chartCategoria.data.labels = dados.labels;
+    chartCategoria.data.datasets[0].data = dados.valores;
+    chartCategoria.data.datasets[0].label = tipo === 'despesa' ? 'Despesas' : 'Receitas';
+    chartCategoria.data.datasets[0].backgroundColor = cor;
+    chartCategoria.update();
+
+    btnDespesas.classList.toggle('bg-vermelho', tipo === 'despesa');
+    btnDespesas.classList.toggle('text-fundo', tipo === 'despesa');
+    btnDespesas.classList.toggle('text-texto', tipo !== 'despesa');
+
+    btnReceitas.classList.toggle('bg-verde', tipo === 'receita');
+    btnReceitas.classList.toggle('text-fundo', tipo === 'receita');
+    btnReceitas.classList.toggle('text-texto', tipo !== 'receita');
+  }
+
+  btnDespesas.addEventListener('click', () => ativarToggleCategoria('despesa'));
+  btnReceitas.addEventListener('click', () => ativarToggleCategoria('receita'));
+</script>
 {% endblock %}
