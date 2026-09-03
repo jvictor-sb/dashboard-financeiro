@@ -57,7 +57,18 @@ def despesas():
     despesas_totais = services.total_despesas(user_email=current_user.email)
     transacoes_despesas = len(listar_despesas)
     
-    return render_template('despesas.html', active_page='despesas', despesas=listar_despesas, despesas_totais=despesas_totais, transacoes_despesas=transacoes_despesas)
+    grafico_despesas_mensal = services.despesas_ultimos_6_meses(user_email=current_user.email)
+    grafico_despesas_categoria = services.total_por_categoria(user_email=current_user.email, tipo='despesa')
+    
+    return render_template(
+        'despesas.html', 
+        active_page='despesas', 
+        despesas=listar_despesas, 
+        despesas_totais=despesas_totais, 
+        transacoes_despesas=transacoes_despesas,
+        grafico_despesas_mensal=grafico_despesas_mensal,
+        grafico_despesas_categoria=grafico_despesas_categoria
+    )
 
 @dashboard.route('/despesas/deletar/<int:id>', methods=['POST'])
 @login_required

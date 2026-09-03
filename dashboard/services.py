@@ -42,7 +42,7 @@ def deletar_transacao(id, user_email):
     db.session.delete(transacao)
     db.session.commit()
 
-def receitas_despesas_ultimos_6_meses(user_email):
+def _ultimos_6_meses():
     hoje = date.today()
 
     meses = []
@@ -55,10 +55,15 @@ def receitas_despesas_ultimos_6_meses(user_email):
         meses.append((ano, mes))
 
     labels = [f"{MESES_PT[mes]}/{ano}" for ano, mes in meses]
+    inicio = date(meses[0][0], meses[0][1], 1)
+
+    return meses, labels, inicio
+
+def receitas_despesas_ultimos_6_meses(user_email):
+    meses, labels, inicio = _ultimos_6_meses()
+
     receitas = [0.0] * 6
     despesas = [0.0] * 6
-
-    inicio = date(meses[0][0], meses[0][1], 1)
 
     resultados = (
         db.session.query(
@@ -87,6 +92,36 @@ def receitas_despesas_ultimos_6_meses(user_email):
             despesas[idx] = float(total)
 
     return {'labels': labels, 'receitas': receitas, 'despesas': despesas}
+
+def despesas_ultimos_6_meses(user_email):
+    meses, labels, inicio = _ultimos_6_meses()
+
+    despesas = [0.0] * 6
+
+    resultados = (
+        db.session.query(
+            func.extract('year', Transacao.data).label('ano'),
+            func.extract('month', Transacao.data).label('mes'),
+            func.sum(Transacao.valor)
+        )
+        .filter(
+            Transacao.user_email == user_email,
+            Transacao.tipo == 'despesa',
+            Transacao.data >= inicio
+        )
+        .group_by('ano', 'mes')
+        .all()
+    )
+
+    indice_por_mes = {(ano, mes): idx for idx, (ano, mes) in enumerate(meses)}
+
+    for ano, mes, total in resultados:
+        idx = indice_por_mes.get((int(ano), int(mes)))
+        if idx is None:
+            continue
+        despesas[idx] = float(total)
+
+    return {'labels': labels, 'despesas': despesas}
 
 def total_por_categoria(user_email, tipo):
     resultados = (
