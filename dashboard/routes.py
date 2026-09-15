@@ -101,7 +101,18 @@ def receitas():
     receitas_totais = services.total_receitas(user_email=current_user.email) 
     transacoes_receitas = len(listar_receitas)
     
-    return render_template('receitas.html', active_page='receitas', receitas=listar_receitas, receitas_totais=receitas_totais, transacoes_receitas=transacoes_receitas)
+    grafico_receitas_mensal = services.receitas_ultimos_6_meses(user_email=current_user.email)
+    grafico_receitas_categoria = services.total_por_categoria(user_email=current_user.email, tipo='receita')
+    
+    return render_template(
+        'receitas.html', 
+        active_page='receitas', 
+        receitas=listar_receitas, 
+        receitas_totais=receitas_totais, 
+        transacoes_receitas=transacoes_receitas,
+        grafico_receitas_mensal=grafico_receitas_mensal,
+        grafico_receitas_categoria=grafico_receitas_categoria
+    )
 
 @dashboard.route('/receitas/deletar/<int:id>', methods=['POST'])
 @login_required

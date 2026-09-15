@@ -130,7 +130,6 @@ endblock %} {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-  // Cores extraídas diretamente do tailwind.config em base.html
   const corVerde = '#10B981';
   const corVermelho = '#DC2626';
   const corAzul = '#47A7FA';
@@ -146,8 +145,6 @@ endblock %} {% block content %}
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  // Tooltip customizado no estilo "Mês/Categoria" + "Valor: R$ X",
-  // reaproveitado nos 3 gráficos pra manter o mesmo visual.
   function tooltipPadrao() {
     return {
       backgroundColor: '#1A1F26',
@@ -166,7 +163,6 @@ endblock %} {% block content %}
     };
   }
 
-  // --- Gráfico de área: Receitas vs Despesas (últimos 6 meses) ---
   const dadosReceitasDespesas = {{ grafico_receitas_despesas | tojson }};
 
   new Chart(document.getElementById('chart_receitas_despesas'), {
@@ -206,7 +202,6 @@ endblock %} {% block content %}
     },
   });
 
-  // --- Gráfico de barra: Detalhamento por Categoria (com toggle Despesas/Receitas) ---
   const dadosCategoriaDespesas = {{ grafico_categoria_despesas | tojson }};
   const dadosCategoriaReceitas = {{ grafico_categoria_receitas | tojson }};
 

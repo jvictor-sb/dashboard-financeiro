@@ -123,6 +123,36 @@ def despesas_ultimos_6_meses(user_email):
 
     return {'labels': labels, 'despesas': despesas}
 
+def receitas_ultimos_6_meses(user_email):
+    meses, labels, inicio = _ultimos_6_meses()
+
+    receitas = [0.0] * 6
+
+    resultados = (
+        db.session.query(
+            func.extract('year', Transacao.data).label('ano'),
+            func.extract('month', Transacao.data).label('mes'),
+            func.sum(Transacao.valor)
+        )
+        .filter(
+            Transacao.user_email == user_email,
+            Transacao.tipo == 'receita',
+            Transacao.data >= inicio
+        )
+        .group_by('ano', 'mes')
+        .all()
+    )
+
+    indice_por_mes = {(ano, mes): idx for idx, (ano, mes) in enumerate(meses)}
+
+    for ano, mes, total in resultados:
+        idx = indice_por_mes.get((int(ano), int(mes)))
+        if idx is None:
+            continue
+        receitas[idx] = float(total)
+
+    return {'labels': labels, 'receitas': receitas}
+
 def total_por_categoria(user_email, tipo):
     resultados = (
         db.session.query(Transacao.categoria, func.sum(Transacao.valor))
