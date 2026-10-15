@@ -16,6 +16,9 @@ def listar_transacoes(user_email):
 def listar_transacoes_por_tipo(user_email, tipo):
     return Transacao.query.filter_by(user_email=user_email, tipo=tipo).order_by(Transacao.data.desc()).all()
 
+def listar_transacoes_por_tipo_e_categoria(user_email, tipo, categoria):
+    return Transacao.query.filter_by(user_email=user_email, tipo=tipo, categoria=categoria).order_by(Transacao.data.desc()).all()
+
 def listar_transacoes_recentes(user_email, limite=6):
     return Transacao.query.filter_by(user_email=user_email).order_by(Transacao.data.desc()).limit(limite).all()
     
@@ -30,6 +33,14 @@ def total_receitas(user_email):
     resultado = db.session.query(func.sum(Transacao.valor)).filter(
         Transacao.user_email == user_email,
         Transacao.tipo == 'receita'
+    ).scalar()
+    return resultado or 0.0
+
+def total_por_tipo_e_categoria(user_email, tipo, categoria):
+    resultado = db.session.query(func.sum(Transacao.valor)).filter(
+        Transacao.user_email == user_email,
+        Transacao.tipo == tipo,
+        Transacao.categoria == categoria
     ).scalar()
     return resultado or 0.0
 
@@ -93,25 +104,25 @@ def receitas_despesas_ultimos_6_meses(user_email):
 
     return {'labels': labels, 'receitas': receitas, 'despesas': despesas}
 
-def despesas_ultimos_6_meses(user_email):
+def despesas_ultimos_6_meses(user_email, categoria=None):
     meses, labels, inicio = _ultimos_6_meses()
 
     despesas = [0.0] * 6
 
-    resultados = (
-        db.session.query(
-            func.extract('year', Transacao.data).label('ano'),
-            func.extract('month', Transacao.data).label('mes'),
-            func.sum(Transacao.valor)
-        )
-        .filter(
-            Transacao.user_email == user_email,
-            Transacao.tipo == 'despesa',
-            Transacao.data >= inicio
-        )
-        .group_by('ano', 'mes')
-        .all()
+    query = db.session.query(
+        func.extract('year', Transacao.data).label('ano'),
+        func.extract('month', Transacao.data).label('mes'),
+        func.sum(Transacao.valor)
+    ).filter(
+        Transacao.user_email == user_email,
+        Transacao.tipo == 'despesa',
+        Transacao.data >= inicio
     )
+
+    if categoria:
+        query = query.filter(Transacao.categoria == categoria)
+
+    resultados = query.group_by('ano', 'mes').all()
 
     indice_por_mes = {(ano, mes): idx for idx, (ano, mes) in enumerate(meses)}
 
@@ -123,25 +134,25 @@ def despesas_ultimos_6_meses(user_email):
 
     return {'labels': labels, 'despesas': despesas}
 
-def receitas_ultimos_6_meses(user_email):
+def receitas_ultimos_6_meses(user_email, categoria=None):
     meses, labels, inicio = _ultimos_6_meses()
 
     receitas = [0.0] * 6
 
-    resultados = (
-        db.session.query(
-            func.extract('year', Transacao.data).label('ano'),
-            func.extract('month', Transacao.data).label('mes'),
-            func.sum(Transacao.valor)
-        )
-        .filter(
-            Transacao.user_email == user_email,
-            Transacao.tipo == 'receita',
-            Transacao.data >= inicio
-        )
-        .group_by('ano', 'mes')
-        .all()
+    query = db.session.query(
+        func.extract('year', Transacao.data).label('ano'),
+        func.extract('month', Transacao.data).label('mes'),
+        func.sum(Transacao.valor)
+    ).filter(
+        Transacao.user_email == user_email,
+        Transacao.tipo == 'receita',
+        Transacao.data >= inicio
     )
+
+    if categoria:
+        query = query.filter(Transacao.categoria == categoria)
+
+    resultados = query.group_by('ano', 'mes').all()
 
     indice_por_mes = {(ano, mes): idx for idx, (ano, mes) in enumerate(meses)}
 
@@ -153,15 +164,46 @@ def receitas_ultimos_6_meses(user_email):
 
     return {'labels': labels, 'receitas': receitas}
 
-def total_por_categoria(user_email, tipo):
-    resultados = (
-        db.session.query(Transacao.categoria, func.sum(Transacao.valor))
-        .filter(Transacao.user_email == user_email, Transacao.tipo == tipo)
-        .group_by(Transacao.categoria)
-        .all()
+def total_por_categoria(user_email, tipo, categoria=None):
+    query = db.session.query(Transacao.categoria, func.sum(Transacao.valor)).filter(
+        Transacao.user_email == user_email,
+        Transacao.tipo == tipo
     )
+
+    if categoria:
+        query = query.filter(Transacao.categoria == categoria)
+
+    resultados = query.group_by(Transacao.categoria).all()
 
     labels = [categoria.capitalize() for categoria, _ in resultados]
     valores = [float(total) for _, total in resultados]
 
     return {'labels': labels, 'valores': valores}
+
+def distribuicao_despesas_por_categoria(user_email, categoria=None):
+    """Despesas agrupadas por categoria, da maior para a menor, com o total geral
+    e o percentual de cada categoria. Nunca divide por zero: sem despesas
+    (ou total igual a zero) devolve listas vazias e total 0.0."""
+    dados = total_por_categoria(user_email, 'despesa', categoria=categoria)
+
+    pares = sorted(
+        ((nome, valor) for nome, valor in zip(dados['labels'], dados['valores']) if valor > 0),
+        key=lambda par: par[1],
+        reverse=True
+    )
+
+    categorias = [nome for nome, _ in pares]
+    valores = [valor for _, valor in pares]
+    total = float(sum(valores))
+
+    if total > 0:
+        percentuais = [round(valor / total * 100, 1) for valor in valores]
+    else:
+        percentuais = []
+
+    return {
+        'categorias': categorias,
+        'valores': valores,
+        'percentuais': percentuais,
+        'total': total
+    }

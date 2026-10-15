@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from flask_login import login_required, current_user 
 from dashboard import services
 from datetime import datetime
@@ -53,12 +53,20 @@ def despesas():
         )
         return redirect(url_for('dashboard.despesas'))
         
-    listar_despesas = services.listar_transacoes_por_tipo(user_email=current_user.email, tipo='despesa')
-    despesas_totais = services.total_despesas(user_email=current_user.email)
+    categoria_filtro = request.args.get('categoria')
+    if categoria_filtro and categoria_filtro != 'todas':
+        listar_despesas = services.listar_transacoes_por_tipo_e_categoria(user_email=current_user.email, tipo='despesa', categoria=categoria_filtro)
+        despesas_totais = services.total_por_tipo_e_categoria(user_email=current_user.email, tipo='despesa', categoria=categoria_filtro)
+    else:
+        categoria_filtro = 'todas'
+        listar_despesas = services.listar_transacoes_por_tipo(user_email=current_user.email, tipo='despesa')
+        despesas_totais = services.total_despesas(user_email=current_user.email)
+
     transacoes_despesas = len(listar_despesas)
     
-    grafico_despesas_mensal = services.despesas_ultimos_6_meses(user_email=current_user.email)
-    grafico_despesas_categoria = services.total_por_categoria(user_email=current_user.email, tipo='despesa')
+    categoria_grafico = None if categoria_filtro == 'todas' else categoria_filtro
+    grafico_despesas_mensal = services.despesas_ultimos_6_meses(user_email=current_user.email, categoria=categoria_grafico)
+    grafico_despesas_categoria = services.total_por_categoria(user_email=current_user.email, tipo='despesa', categoria=categoria_grafico)
     
     return render_template(
         'despesas.html', 
@@ -66,6 +74,7 @@ def despesas():
         despesas=listar_despesas, 
         despesas_totais=despesas_totais, 
         transacoes_despesas=transacoes_despesas,
+        categoria_filtro=categoria_filtro,
         grafico_despesas_mensal=grafico_despesas_mensal,
         grafico_despesas_categoria=grafico_despesas_categoria
     )
@@ -97,12 +106,20 @@ def receitas():
         )
         return redirect(url_for('dashboard.receitas'))
 
-    listar_receitas = services.listar_transacoes_por_tipo(user_email=current_user.email, tipo='receita')
-    receitas_totais = services.total_receitas(user_email=current_user.email) 
+    categoria_filtro = request.args.get('categoria')
+    if categoria_filtro and categoria_filtro != 'todas':
+        listar_receitas = services.listar_transacoes_por_tipo_e_categoria(user_email=current_user.email, tipo='receita', categoria=categoria_filtro)
+        receitas_totais = services.total_por_tipo_e_categoria(user_email=current_user.email, tipo='receita', categoria=categoria_filtro)
+    else:
+        categoria_filtro = 'todas'
+        listar_receitas = services.listar_transacoes_por_tipo(user_email=current_user.email, tipo='receita')
+        receitas_totais = services.total_receitas(user_email=current_user.email)
+
     transacoes_receitas = len(listar_receitas)
     
-    grafico_receitas_mensal = services.receitas_ultimos_6_meses(user_email=current_user.email)
-    grafico_receitas_categoria = services.total_por_categoria(user_email=current_user.email, tipo='receita')
+    categoria_grafico = None if categoria_filtro == 'todas' else categoria_filtro
+    grafico_receitas_mensal = services.receitas_ultimos_6_meses(user_email=current_user.email, categoria=categoria_grafico)
+    grafico_receitas_categoria = services.total_por_categoria(user_email=current_user.email, tipo='receita', categoria=categoria_grafico)
     
     return render_template(
         'receitas.html', 
@@ -110,6 +127,7 @@ def receitas():
         receitas=listar_receitas, 
         receitas_totais=receitas_totais, 
         transacoes_receitas=transacoes_receitas,
+        categoria_filtro=categoria_filtro,
         grafico_receitas_mensal=grafico_receitas_mensal,
         grafico_receitas_categoria=grafico_receitas_categoria
     )
@@ -119,3 +137,16 @@ def receitas():
 def deletar_receitas(id):
     services.deletar_transacao(id, current_user.email) 
     return redirect(url_for('dashboard.receitas'))
+
+@dashboard.route('/api/despesas/categoria')
+@login_required
+def api_despesas_categoria():
+    categoria = request.args.get('categoria')
+    if not categoria or categoria == 'todas':
+        categoria = None
+
+    dados = services.distribuicao_despesas_por_categoria(
+        user_email=current_user.email,
+        categoria=categoria
+    )
+    return jsonify(dados)

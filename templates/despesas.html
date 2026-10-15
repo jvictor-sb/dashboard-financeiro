@@ -31,6 +31,13 @@ endblock %} {% block content %}
   </div>
   <div class="flex items-center gap-3">
     <button
+      class="flex items-center gap-2 bg-form border border-borda hover:brightness-110 text-texto px-4 py-1 rounded-lg text-sm font-semibold transition-colors"
+      onclick="abrirModalFiltro()"
+    >
+      <i class="ph ph-funnel text-base font-bold"></i>
+      Filtros
+    </button>
+    <button
       class="flex items-center gap-2 bg-azul hover:bg-blue-500 text-[#0A0E12] px-4 py-1 rounded-lg text-sm font-semibold transition-colors"
       onclick="abrirModal()"
     >
@@ -79,10 +86,18 @@ endblock %} {% block content %}
           >
             Barra
           </button>
+          <button
+            type="button"
+            id="btn_view_pizza"
+            class="px-3 py-1 rounded-md transition-colors text-texto"
+          >
+            Pizza
+          </button>
         </div>
       </div>
       <div class="flex-1 relative">
         <canvas id="chart_despesas"></canvas>
+        <p id="msg_vazio_despesas" style="display: none;" class="absolute inset-0 items-center justify-center text-azul text-sm text-center px-6"></p>
       </div>
     </div>
 
@@ -147,7 +162,11 @@ endblock %} {% block content %}
           {% else %}
           <tr>
             <td colspan="5" class="py-8 text-center text-texto/40 text-sm">
+              {% if categoria_filtro and categoria_filtro != 'todas' %}
+              Nenhuma despesa encontrada para a categoria "{{ categoria_filtro | capitalize }}".
+              {% else %}
               Nenhuma despesa cadastrada ainda.
+              {% endif %}
             </td>
           </tr>
           {% endfor %}
@@ -278,8 +297,90 @@ endblock %} {% block content %}
     .addEventListener("click", fecharModal);
 </script>
 
+<dialog
+  class="rounded-2xl p-0 w-full max-w-md opacity-0 scale-95 transition-all duration-200 backdrop:bg-black/0 backdrop:transition-all backdrop:duration-200"
+  id="modal_filtro"
+>
+  <div class="bg-fundo border border-borda p-6 pb-0 flex flex-col gap-4">
+    <div>
+      <h2 class="text-xl text-texto font-bold">Filtrar Despesas</h2>
+      <p class="text-azul text-sm">Escolha uma categoria para filtrar o histórico</p>
+    </div>
+
+    <form
+      class="text-texto flex flex-col gap-3"
+      method="GET"
+      action="{{ url_for('dashboard.despesas') }}"
+    >
+      <div class="flex flex-col gap-1">
+        <label for="categoria_filtro">Categoria</label>
+        <select
+          name="categoria"
+          id="categoria_filtro"
+          class="bg-form rounded-2xl h-11 px-3 w-full border border-borda focus:border-azul focus:outline-none focus:ring-2 focus:ring-azul/30 text-texto"
+        >
+          <option value="todas" {% if categoria_filtro == 'todas' %}selected{% endif %}>Todas as categorias</option>
+          <option value="aluguel" {% if categoria_filtro == 'aluguel' %}selected{% endif %}>Aluguel</option>
+          <option value="mercado" {% if categoria_filtro == 'mercado' %}selected{% endif %}>Mercado</option>
+          <option value="utilidades" {% if categoria_filtro == 'utilidades' %}selected{% endif %}>Utilidades</option>
+          <option value="transporte" {% if categoria_filtro == 'transporte' %}selected{% endif %}>Transporte</option>
+          <option value="entretenimento" {% if categoria_filtro == 'entretenimento' %}selected{% endif %}>Entretenimento</option>
+          <option value="saude" {% if categoria_filtro == 'saude' %}selected{% endif %}>Saúde</option>
+          <option value="compras" {% if categoria_filtro == 'compras' %}selected{% endif %}>Compras</option>
+          <option value="outros" {% if categoria_filtro == 'outros' %}selected{% endif %}>Outros</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end gap-3 py-4">
+        <button
+          type="button"
+          id="btn_cancelar_filtro"
+          class="h-9 px-4 text-sm rounded-xl bg-form border border-borda text-texto font-medium hover:brightness-110 transition"
+        >
+          Cancelar
+        </button>
+        <input
+          type="submit"
+          value="Aplicar"
+          class="h-9 px-4 text-sm rounded-xl bg-azul text-fundo font-medium cursor-pointer hover:brightness-110 transition"
+        />
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  const modalFiltro = document.getElementById("modal_filtro");
+
+  function abrirModalFiltro() {
+    modalFiltro.showModal();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        modalFiltro.classList.remove("opacity-0", "scale-95");
+        modalFiltro.classList.add("opacity-100", "scale-100");
+        modalFiltro.classList.add("[&::backdrop]:bg-black/50");
+      });
+    });
+  }
+
+  function fecharModalFiltro() {
+    modalFiltro.classList.remove(
+      "opacity-100",
+      "scale-100",
+      "[&::backdrop]:bg-black/50",
+    );
+    modalFiltro.classList.add("opacity-0", "scale-95");
+    setTimeout(() => modalFiltro.close(), 200);
+  }
+
+  document
+    .getElementById("btn_cancelar_filtro")
+    .addEventListener("click", fecharModalFiltro);
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
+  // Cores extraídas diretamente do tailwind.config em base.html
   const corVermelho = '#DC2626';
   const corAzul = '#47A7FA';
 
@@ -292,6 +393,11 @@ endblock %} {% block content %}
 
   function formatarReal(valor) {
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  // Considera "sem dados" quando todos os valores do array são zero.
+  function temDados(arr) {
+    return arr.some((v) => v !== 0);
   }
 
   function tooltipPadrao() {
@@ -316,7 +422,9 @@ endblock %} {% block content %}
 
   const btnViewLinha = document.getElementById('btn_view_linha');
   const btnViewBarra = document.getElementById('btn_view_barra');
+  const btnViewPizza = document.getElementById('btn_view_pizza');
   const ctxDespesas = document.getElementById('chart_despesas');
+  const msgVazioDespesas = document.getElementById('msg_vazio_despesas');
 
   let chartDespesas = null;
 
@@ -380,25 +488,143 @@ endblock %} {% block content %}
     };
   }
 
-  function ativarView(view) {
+  // --- Gráfico de pizza: distribuição de despesas por categoria (consome a API do Flask) ---
+  // Respeita o filtro de categoria ativo na página (com filtro, a pizza tem uma única fatia de 100%).
+  const URL_API_DESPESAS_CATEGORIA = {{ url_for('dashboard.api_despesas_categoria', categoria=categoria_filtro) | tojson }};
+  const FILTRO_ATIVO = {{ (categoria_filtro != 'todas') | tojson }};
+  const PALETA_PIZZA = ['#DC2626', '#F59E0B', '#47A7FA', '#10B981', '#A855F7', '#EC4899', '#14B8A6', '#94A3B8'];
+
+  function formatarPercentual(valor) {
+    return valor.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+  }
+
+  // Tooltip: nome da categoria, valor em R$ e participação no total de despesas.
+  function tooltipPizza(dados) {
+    return {
+      ...tooltipPadrao(),
+      callbacks: {
+        title: (itens) => itens[0].label,
+        label: (contexto) => [
+          `Valor: ${formatarReal(contexto.parsed)}`,
+          `Participação: ${formatarPercentual(dados.percentuais[contexto.dataIndex] ?? 0)}`,
+        ],
+      },
+    };
+  }
+
+  function configPizza(dados) {
+    return {
+      type: 'doughnut',
+      data: {
+        labels: dados.categorias,
+        datasets: [
+          {
+            label: 'Despesas',
+            data: dados.valores,
+            backgroundColor: dados.categorias.map((_, i) => PALETA_PIZZA[i % PALETA_PIZZA.length]),
+            borderColor: '#1A1F26',
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '55%',
+        plugins: {
+          // A legenda padrão do Chart.js já oculta/exibe fatias ao clicar.
+          legend: { position: 'right', labels: { color: corAzul, boxWidth: 12 } },
+          tooltip: tooltipPizza(dados),
+        },
+      },
+    };
+  }
+
+  const botoesView = { linha: btnViewLinha, barra: btnViewBarra, pizza: btnViewPizza };
+  let viewAtual = 'linha';
+
+  function mostrarMensagemDespesas(texto) {
     if (chartDespesas) {
       chartDespesas.destroy();
+      chartDespesas = null;
+    }
+    ctxDespesas.style.display = 'none';
+    msgVazioDespesas.textContent = texto;
+    msgVazioDespesas.style.display = 'flex';
+  }
+
+  async function carregarPizzaDespesas() {
+    mostrarMensagemDespesas('Carregando...');
+    try {
+      const resposta = await fetch(URL_API_DESPESAS_CATEGORIA, {
+        headers: { Accept: 'application/json' },
+        credentials: 'same-origin',
+      });
+      // Sessão expirada: o Flask-Login devolve o HTML do login em vez de JSON.
+      const tipoConteudo = resposta.headers.get('content-type') || '';
+      if (!resposta.ok || !tipoConteudo.includes('application/json')) {
+        throw new Error('Resposta inválida do servidor');
+      }
+      const dados = await resposta.json();
+      if (viewAtual !== 'pizza') return; // o usuário trocou de visualização durante o carregamento
+
+      if (!dados.total || !dados.valores.length) {
+        mostrarMensagemDespesas(FILTRO_ATIVO
+          ? 'Não há nenhuma transação registrada nesta categoria.'
+          : 'Não há nenhuma despesa registrada para exibir a distribuição.');
+        return;
+      }
+
+      if (chartDespesas) {
+        chartDespesas.destroy();
+      }
+      msgVazioDespesas.style.display = 'none';
+      ctxDespesas.style.display = 'block';
+      chartDespesas = new Chart(ctxDespesas, configPizza(dados));
+    } catch (erro) {
+      if (viewAtual !== 'pizza') return;
+      mostrarMensagemDespesas('Não foi possível carregar a distribuição de despesas. Recarregue a página e tente novamente.');
+    }
+  }
+
+  function ativarView(view) {
+    viewAtual = view;
+
+    if (chartDespesas) {
+      chartDespesas.destroy();
+      chartDespesas = null;
     }
 
-    const config = view === 'linha' ? configLinha() : configBarra();
-    chartDespesas = new Chart(ctxDespesas, config);
+    Object.entries(botoesView).forEach(([nome, botao]) => {
+      const ativo = nome === view;
+      botao.classList.toggle('bg-vermelho', ativo);
+      botao.classList.toggle('text-fundo', ativo);
+      botao.classList.toggle('text-texto', !ativo);
+    });
 
-    btnViewLinha.classList.toggle('bg-vermelho', view === 'linha');
-    btnViewLinha.classList.toggle('text-fundo', view === 'linha');
-    btnViewLinha.classList.toggle('text-texto', view !== 'linha');
+    if (view === 'pizza') {
+      carregarPizzaDespesas();
+      return;
+    }
 
-    btnViewBarra.classList.toggle('bg-vermelho', view === 'barra');
-    btnViewBarra.classList.toggle('text-fundo', view === 'barra');
-    btnViewBarra.classList.toggle('text-texto', view !== 'barra');
+    const dados = view === 'linha' ? dadosDespesasMensal.despesas : dadosDespesasCategoria.valores;
+
+    if (!temDados(dados)) {
+      mostrarMensagemDespesas(view === 'linha'
+        ? 'Não há nenhuma transação no período selecionado.'
+        : 'Não há nenhuma transação registrada nesta categoria.');
+    } else {
+      ctxDespesas.style.display = 'block';
+      msgVazioDespesas.style.display = 'none';
+
+      const config = view === 'linha' ? configLinha() : configBarra();
+      chartDespesas = new Chart(ctxDespesas, config);
+    }
   }
 
   btnViewLinha.addEventListener('click', () => ativarView('linha'));
   btnViewBarra.addEventListener('click', () => ativarView('barra'));
+  btnViewPizza.addEventListener('click', () => ativarView('pizza'));
 
   ativarView('linha');
 </script>

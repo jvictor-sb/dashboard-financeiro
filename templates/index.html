@@ -68,33 +68,62 @@ endblock %} {% block content %}
       <h4>Receitas vs Despesas</h4>
       <div class="flex-1 relative">
         <canvas id="chart_receitas_despesas"></canvas>
+        <p id="msg_vazio_receitas_despesas" style="display: none;" class="absolute inset-0 items-center justify-center text-azul text-sm text-center px-6">
+          Não há nenhuma transação no período selecionado.
+        </p>
       </div>
     </div>
     <div
       class="bg-card rounded-md h-96 p-4 border border-borda flex flex-col"
       id="graph_categ"
     >
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between flex-wrap gap-2">
         <h4>Detalhamento por Categoria</h4>
-        <div class="flex items-center gap-1 bg-form border border-borda rounded-lg p-1 text-xs">
-          <button
-            type="button"
-            id="btn_categ_despesas"
-            class="px-3 py-1 rounded-md transition-colors bg-vermelho text-fundo"
+        <div class="flex items-center gap-2 flex-wrap">
+          <div
+            id="grupo_tipo_categ"
+            class="flex items-center gap-1 bg-form border border-borda rounded-lg p-1 text-xs transition-opacity"
           >
-            Despesas
-          </button>
-          <button
-            type="button"
-            id="btn_categ_receitas"
-            class="px-3 py-1 rounded-md transition-colors text-texto"
-          >
-            Receitas
-          </button>
+            <button
+              type="button"
+              id="btn_categ_despesas"
+              class="px-3 py-1 rounded-md transition-colors bg-vermelho text-fundo"
+            >
+              Despesas
+            </button>
+            <button
+              type="button"
+              id="btn_categ_receitas"
+              class="px-3 py-1 rounded-md transition-colors text-texto"
+            >
+              Receitas
+            </button>
+          </div>
+          <div class="flex items-center gap-1 bg-form border border-borda rounded-lg p-1 text-xs">
+            <button
+              type="button"
+              id="btn_modo_barra"
+              class="px-3 py-1 rounded-md transition-colors bg-azul text-fundo"
+            >
+              Barra
+            </button>
+            <button
+              type="button"
+              id="btn_modo_pizza"
+              class="px-3 py-1 rounded-md transition-colors text-texto"
+            >
+              Pizza
+            </button>
+          </div>
         </div>
       </div>
       <div class="flex-1 relative">
         <canvas id="chart_categoria"></canvas>
+        <p id="msg_vazio_categoria" style="display: none;" class="absolute inset-0 items-center justify-center text-azul text-sm text-center px-6">
+          Não há nenhuma transação registrada nesta categoria.
+        </p>
+        <canvas id="chart_pizza" style="display: none;"></canvas>
+        <p id="msg_pizza" style="display: none;" class="absolute inset-0 items-center justify-center text-azul text-sm text-center px-6"></p>
       </div>
     </div>
   </div>
@@ -130,6 +159,7 @@ endblock %} {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
+  // Cores extraídas diretamente do tailwind.config em base.html
   const corVerde = '#10B981';
   const corVermelho = '#DC2626';
   const corAzul = '#47A7FA';
@@ -145,6 +175,13 @@ endblock %} {% block content %}
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
+  // Considera "sem dados" quando todos os valores do(s) array(s) são zero.
+  function temDados(...arrays) {
+    return arrays.some((arr) => arr.some((v) => v !== 0));
+  }
+
+  // Tooltip customizado no estilo "Mês/Categoria" + "Valor: R$ X",
+  // reaproveitado nos 3 gráficos pra manter o mesmo visual.
   function tooltipPadrao() {
     return {
       backgroundColor: '#1A1F26',
@@ -163,9 +200,16 @@ endblock %} {% block content %}
     };
   }
 
+  // --- Gráfico de área: Receitas vs Despesas (últimos 6 meses) ---
   const dadosReceitasDespesas = {{ grafico_receitas_despesas | tojson }};
+  const canvasReceitasDespesas = document.getElementById('chart_receitas_despesas');
+  const msgVazioReceitasDespesas = document.getElementById('msg_vazio_receitas_despesas');
 
-  new Chart(document.getElementById('chart_receitas_despesas'), {
+  if (!temDados(dadosReceitasDespesas.receitas, dadosReceitasDespesas.despesas)) {
+    canvasReceitasDespesas.style.display = 'none';
+    msgVazioReceitasDespesas.style.display = 'flex';
+  } else {
+    new Chart(canvasReceitasDespesas, {
     type: 'line',
     data: {
       labels: dadosReceitasDespesas.labels,
@@ -201,50 +245,22 @@ endblock %} {% block content %}
       },
     },
   });
+  }
 
+  // --- Gráfico de barra: Detalhamento por Categoria (com toggle Despesas/Receitas) ---
   const dadosCategoriaDespesas = {{ grafico_categoria_despesas | tojson }};
   const dadosCategoriaReceitas = {{ grafico_categoria_receitas | tojson }};
 
   const btnDespesas = document.getElementById('btn_categ_despesas');
   const btnReceitas = document.getElementById('btn_categ_receitas');
+  const canvasCategoria = document.getElementById('chart_categoria');
+  const msgVazioCategoria = document.getElementById('msg_vazio_categoria');
 
-  const chartCategoria = new Chart(document.getElementById('chart_categoria'), {
-    type: 'bar',
-    data: {
-      labels: dadosCategoriaDespesas.labels,
-      datasets: [
-        {
-          label: 'Despesas',
-          data: dadosCategoriaDespesas.valores,
-          backgroundColor: corVermelho,
-          borderRadius: 6,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: tooltipPadrao(),
-      },
-      scales: {
-        x: { ticks: { color: corAzul }, grid: { display: false } },
-        y: { ticks: { color: corAzul }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
-      },
-    },
-  });
+  let chartCategoria = null;
+  let tipoCategoriaAtual = 'despesa';
 
-  function ativarToggleCategoria(tipo) {
-    const dados = tipo === 'despesa' ? dadosCategoriaDespesas : dadosCategoriaReceitas;
-    const cor = tipo === 'despesa' ? corVermelho : corVerde;
-
-    chartCategoria.data.labels = dados.labels;
-    chartCategoria.data.datasets[0].data = dados.valores;
-    chartCategoria.data.datasets[0].label = tipo === 'despesa' ? 'Despesas' : 'Receitas';
-    chartCategoria.data.datasets[0].backgroundColor = cor;
-    chartCategoria.update();
-
+  // Pinta o toggle Despesas/Receitas sem mexer no gráfico.
+  function pintarToggleTipo(tipo) {
     btnDespesas.classList.toggle('bg-vermelho', tipo === 'despesa');
     btnDespesas.classList.toggle('text-fundo', tipo === 'despesa');
     btnDespesas.classList.toggle('text-texto', tipo !== 'despesa');
@@ -254,7 +270,204 @@ endblock %} {% block content %}
     btnReceitas.classList.toggle('text-texto', tipo !== 'receita');
   }
 
+  function ativarToggleCategoria(tipo) {
+    tipoCategoriaAtual = tipo;
+
+    const dados = tipo === 'despesa' ? dadosCategoriaDespesas : dadosCategoriaReceitas;
+    const cor = tipo === 'despesa' ? corVermelho : corVerde;
+
+    if (!temDados(dados.valores)) {
+      canvasCategoria.style.display = 'none';
+      msgVazioCategoria.style.display = 'flex';
+      if (chartCategoria) {
+        chartCategoria.destroy();
+        chartCategoria = null;
+      }
+    } else {
+      canvasCategoria.style.display = 'block';
+      msgVazioCategoria.style.display = 'none';
+
+      if (chartCategoria) {
+        chartCategoria.data.labels = dados.labels;
+        chartCategoria.data.datasets[0].data = dados.valores;
+        chartCategoria.data.datasets[0].label = tipo === 'despesa' ? 'Despesas' : 'Receitas';
+        chartCategoria.data.datasets[0].backgroundColor = cor;
+        chartCategoria.update();
+      } else {
+        chartCategoria = new Chart(canvasCategoria, {
+          type: 'bar',
+          data: {
+            labels: dados.labels,
+            datasets: [
+              {
+                label: tipo === 'despesa' ? 'Despesas' : 'Receitas',
+                data: dados.valores,
+                backgroundColor: cor,
+                borderRadius: 6,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: tooltipPadrao(),
+            },
+            scales: {
+              x: { ticks: { color: corAzul }, grid: { display: false } },
+              y: { ticks: { color: corAzul }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+            },
+          },
+        });
+      }
+    }
+
+    pintarToggleTipo(tipo);
+  }
+
   btnDespesas.addEventListener('click', () => ativarToggleCategoria('despesa'));
   btnReceitas.addEventListener('click', () => ativarToggleCategoria('receita'));
+
+  ativarToggleCategoria('despesa');
+
+  // --- Gráfico de pizza: distribuição de despesas por categoria (consome a API do Flask) ---
+  const URL_API_DESPESAS_CATEGORIA = {{ url_for('dashboard.api_despesas_categoria') | tojson }};
+  const PALETA_PIZZA = ['#DC2626', '#F59E0B', '#47A7FA', '#10B981', '#A855F7', '#EC4899', '#14B8A6', '#94A3B8'];
+
+  const btnModoBarra = document.getElementById('btn_modo_barra');
+  const btnModoPizza = document.getElementById('btn_modo_pizza');
+  const grupoTipoCategoria = document.getElementById('grupo_tipo_categ');
+  const canvasPizza = document.getElementById('chart_pizza');
+  const msgPizza = document.getElementById('msg_pizza');
+
+  let chartPizza = null;
+  let modoCategoria = 'barra';
+
+  function formatarPercentual(valor) {
+    return valor.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+  }
+
+  // Tooltip: nome da categoria, valor em R$ e participação no total de despesas.
+  function tooltipPizza(dados) {
+    return {
+      ...tooltipPadrao(),
+      callbacks: {
+        title: (itens) => itens[0].label,
+        label: (contexto) => [
+          `Valor: ${formatarReal(contexto.parsed)}`,
+          `Participação: ${formatarPercentual(dados.percentuais[contexto.dataIndex] ?? 0)}`,
+        ],
+      },
+    };
+  }
+
+  function mostrarMensagemPizza(texto) {
+    if (chartPizza) {
+      chartPizza.destroy();
+      chartPizza = null;
+    }
+    canvasPizza.style.display = 'none';
+    msgPizza.textContent = texto;
+    msgPizza.style.display = 'flex';
+  }
+
+  function renderizarPizza(dados) {
+    if (!dados || !dados.total || !dados.valores.length) {
+      mostrarMensagemPizza('Não há nenhuma despesa registrada para exibir a distribuição.');
+      return;
+    }
+
+    if (chartPizza) {
+      chartPizza.destroy();
+    }
+    msgPizza.style.display = 'none';
+    canvasPizza.style.display = 'block';
+
+    chartPizza = new Chart(canvasPizza, {
+      type: 'doughnut',
+      data: {
+        labels: dados.categorias,
+        datasets: [
+          {
+            label: 'Despesas',
+            data: dados.valores,
+            backgroundColor: dados.categorias.map((_, i) => PALETA_PIZZA[i % PALETA_PIZZA.length]),
+            borderColor: '#1A1F26',
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '55%',
+        plugins: {
+          // A legenda padrão do Chart.js já oculta/exibe fatias ao clicar.
+          legend: { position: 'right', labels: { color: corAzul, boxWidth: 12 } },
+          tooltip: tooltipPizza(dados),
+        },
+      },
+    });
+  }
+
+  async function carregarPizza() {
+    mostrarMensagemPizza('Carregando...');
+    try {
+      const resposta = await fetch(URL_API_DESPESAS_CATEGORIA, {
+        headers: { Accept: 'application/json' },
+        credentials: 'same-origin',
+      });
+      // Sessão expirada: o Flask-Login devolve o HTML do login em vez de JSON.
+      const tipoConteudo = resposta.headers.get('content-type') || '';
+      if (!resposta.ok || !tipoConteudo.includes('application/json')) {
+        throw new Error('Resposta inválida do servidor');
+      }
+      const dados = await resposta.json();
+      if (modoCategoria !== 'pizza') return; // o usuário voltou para as barras durante o carregamento
+      renderizarPizza(dados);
+    } catch (erro) {
+      if (modoCategoria !== 'pizza') return;
+      mostrarMensagemPizza('Não foi possível carregar a distribuição de despesas. Recarregue a página e tente novamente.');
+    }
+  }
+
+  function ativarModoCategoria(modo) {
+    if (modo === modoCategoria) return;
+    modoCategoria = modo;
+    const pizza = modo === 'pizza';
+
+    btnModoBarra.classList.toggle('bg-azul', !pizza);
+    btnModoBarra.classList.toggle('text-fundo', !pizza);
+    btnModoBarra.classList.toggle('text-texto', pizza);
+    btnModoPizza.classList.toggle('bg-azul', pizza);
+    btnModoPizza.classList.toggle('text-fundo', pizza);
+    btnModoPizza.classList.toggle('text-texto', !pizza);
+
+    // A pizza é sempre de despesas: o toggle Despesas/Receitas fica visível, mas desabilitado.
+    grupoTipoCategoria.classList.toggle('opacity-40', pizza);
+    grupoTipoCategoria.classList.toggle('pointer-events-none', pizza);
+    btnDespesas.disabled = pizza;
+    btnReceitas.disabled = pizza;
+
+    if (pizza) {
+      canvasCategoria.style.display = 'none';
+      msgVazioCategoria.style.display = 'none';
+      pintarToggleTipo('despesa');
+      carregarPizza();
+    } else {
+      if (chartPizza) {
+        chartPizza.destroy();
+        chartPizza = null;
+      }
+      canvasPizza.style.display = 'none';
+      msgPizza.style.display = 'none';
+      ativarToggleCategoria(tipoCategoriaAtual);
+      if (chartCategoria) chartCategoria.resize();
+    }
+  }
+
+  btnModoBarra.addEventListener('click', () => ativarModoCategoria('barra'));
+  btnModoPizza.addEventListener('click', () => ativarModoCategoria('pizza'));
 </script>
 {% endblock %}

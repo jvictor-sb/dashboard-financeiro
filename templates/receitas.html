@@ -31,6 +31,13 @@ endblock %} {% block content %}
   </div>
   <div class="flex items-center gap-3">
     <button
+      class="flex items-center gap-2 bg-form border border-borda hover:brightness-110 text-texto px-4 py-1 rounded-lg text-sm font-semibold transition-colors"
+      onclick="abrirModalFiltro()"
+    >
+      <i class="ph ph-funnel text-base font-bold"></i>
+      Filtros
+    </button>
+    <button
       class="flex items-center gap-2 bg-azul hover:bg-blue-500 text-[#0A0E12] px-4 py-1 rounded-lg text-sm font-semibold transition-colors"
       onclick="abrirModal()"
     >
@@ -64,9 +71,7 @@ endblock %} {% block content %}
     >
       <div class="flex items-center justify-between">
         <h4 class="text-texto">Visualização de Receitas</h4>
-        <div
-          class="flex items-center gap-1 bg-form border border-borda rounded-lg p-1 text-xs"
-        >
+        <div class="flex items-center gap-1 bg-form border border-borda rounded-lg p-1 text-xs">
           <button
             type="button"
             id="btn_view_linha"
@@ -85,6 +90,7 @@ endblock %} {% block content %}
       </div>
       <div class="flex-1 relative">
         <canvas id="chart_receitas"></canvas>
+        <p id="msg_vazio_receitas" style="display: none;" class="absolute inset-0 items-center justify-center text-azul text-sm text-center px-6"></p>
       </div>
     </div>
 
@@ -153,7 +159,11 @@ endblock %} {% block content %}
           {% else %}
           <tr>
             <td colspan="5" class="py-8 text-center text-texto/40 text-sm">
+              {% if categoria_filtro and categoria_filtro != 'todas' %}
+              Nenhuma receita encontrada para a categoria "{{ categoria_filtro | capitalize }}".
+              {% else %}
               Nenhuma receita cadastrada ainda.
+              {% endif %}
             </td>
           </tr>
           {% endfor %}
@@ -201,12 +211,12 @@ endblock %} {% block content %}
           class="bg-form rounded-2xl h-11 px-3 w-full border border-borda focus:border-azul focus:outline-none focus:ring-2 focus:ring-azul/30 text-texto/40"
         >
           <option value="" disabled selected hidden>Selecione uma opção</option>
-          <option value="salario">Salário</option>
-          <option value="freelance">Freelance</option>
-          <option value="investimento">Investimento</option>
-          <option value="negocio">Negócio</option>
-          <option value="presente">Presente</option>
-          <option value="outros">Outros</option>
+          <option value="salario" class="text-texto">Salário</option>
+          <option value="freelance" class="text-texto">Freelance</option>
+          <option value="investimento" class="text-texto">Investimento</option>
+          <option value="negocio" class="text-texto">Negócio</option>
+          <option value="presente" class="text-texto">Presente</option>
+          <option value="outros" class="text-texto">Outros</option>
         </select>
       </div>
 
@@ -280,6 +290,85 @@ endblock %} {% block content %}
     .addEventListener("click", fecharModal);
 </script>
 
+<dialog
+  class="rounded-2xl p-0 w-full max-w-md opacity-0 scale-95 transition-all duration-200 backdrop:bg-black/0 backdrop:transition-all backdrop:duration-200"
+  id="modal_filtro"
+>
+  <div class="bg-fundo border border-borda p-6 pb-0 flex flex-col gap-4">
+    <div>
+      <h2 class="text-xl text-texto font-bold">Filtrar Receitas</h2>
+      <p class="text-azul text-sm">Escolha uma categoria para filtrar o histórico</p>
+    </div>
+
+    <form
+      class="text-texto flex flex-col gap-3"
+      method="GET"
+      action="{{ url_for('dashboard.receitas') }}"
+    >
+      <div class="flex flex-col gap-1">
+        <label for="categoria_filtro">Categoria</label>
+        <select
+          name="categoria"
+          id="categoria_filtro"
+          class="bg-form rounded-2xl h-11 px-3 w-full border border-borda focus:border-azul focus:outline-none focus:ring-2 focus:ring-azul/30 text-texto"
+        >
+          <option value="todas" {% if categoria_filtro == 'todas' %}selected{% endif %}>Todas as categorias</option>
+          <option value="salario" {% if categoria_filtro == 'salario' %}selected{% endif %}>Salário</option>
+          <option value="freelance" {% if categoria_filtro == 'freelance' %}selected{% endif %}>Freelance</option>
+          <option value="investimento" {% if categoria_filtro == 'investimento' %}selected{% endif %}>Investimento</option>
+          <option value="negocio" {% if categoria_filtro == 'negocio' %}selected{% endif %}>Negócio</option>
+          <option value="presente" {% if categoria_filtro == 'presente' %}selected{% endif %}>Presente</option>
+          <option value="outros" {% if categoria_filtro == 'outros' %}selected{% endif %}>Outros</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end gap-3 py-4">
+        <button
+          type="button"
+          id="btn_cancelar_filtro"
+          class="h-9 px-4 text-sm rounded-xl bg-form border border-borda text-texto font-medium hover:brightness-110 transition"
+        >
+          Cancelar
+        </button>
+        <input
+          type="submit"
+          value="Aplicar"
+          class="h-9 px-4 text-sm rounded-xl bg-azul text-fundo font-medium cursor-pointer hover:brightness-110 transition"
+        />
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  const modalFiltro = document.getElementById("modal_filtro");
+
+  function abrirModalFiltro() {
+    modalFiltro.showModal();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        modalFiltro.classList.remove("opacity-0", "scale-95");
+        modalFiltro.classList.add("opacity-100", "scale-100");
+        modalFiltro.classList.add("[&::backdrop]:bg-black/50");
+      });
+    });
+  }
+
+  function fecharModalFiltro() {
+    modalFiltro.classList.remove(
+      "opacity-100",
+      "scale-100",
+      "[&::backdrop]:bg-black/50",
+    );
+    modalFiltro.classList.add("opacity-0", "scale-95");
+    setTimeout(() => modalFiltro.close(), 200);
+  }
+
+  document
+    .getElementById("btn_cancelar_filtro")
+    .addEventListener("click", fecharModalFiltro);
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
   // Cores extraídas diretamente do tailwind.config em base.html
@@ -295,6 +384,11 @@ endblock %} {% block content %}
 
   function formatarReal(valor) {
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  // Considera "sem dados" quando todos os valores do array são zero.
+  function temDados(arr) {
+    return arr.some((v) => v !== 0);
   }
 
   function tooltipPadrao() {
@@ -320,6 +414,7 @@ endblock %} {% block content %}
   const btnViewLinha = document.getElementById('btn_view_linha');
   const btnViewBarra = document.getElementById('btn_view_barra');
   const ctxReceitas = document.getElementById('chart_receitas');
+  const msgVazioReceitas = document.getElementById('msg_vazio_receitas');
 
   let chartReceitas = null;
 
@@ -386,10 +481,24 @@ endblock %} {% block content %}
   function ativarView(view) {
     if (chartReceitas) {
       chartReceitas.destroy();
+      chartReceitas = null;
     }
 
-    const config = view === 'linha' ? configLinha() : configBarra();
-    chartReceitas = new Chart(ctxReceitas, config);
+    const dados = view === 'linha' ? dadosReceitasMensal.receitas : dadosReceitasCategoria.valores;
+
+    if (!temDados(dados)) {
+      ctxReceitas.style.display = 'none';
+      msgVazioReceitas.style.display = 'flex';
+      msgVazioReceitas.textContent = view === 'linha'
+        ? 'Não há nenhuma transação no período selecionado.'
+        : 'Não há nenhuma transação registrada nesta categoria.';
+    } else {
+      ctxReceitas.style.display = 'block';
+      msgVazioReceitas.style.display = 'none';
+
+      const config = view === 'linha' ? configLinha() : configBarra();
+      chartReceitas = new Chart(ctxReceitas, config);
+    }
 
     btnViewLinha.classList.toggle('bg-verde', view === 'linha');
     btnViewLinha.classList.toggle('text-fundo', view === 'linha');
